@@ -1,22 +1,39 @@
-# Matt Skills Curated 中文版
+# LeapSkill
 
-这是 [Matt Skills Curated](https://github.com/) 插件技能集的中文维护版本，基于插件缓存中的 `matt-skills-curated/1.1.0` 技能内容生成。
+LeapSkill 是我的个人 Codex 技能库：一套从想法、规格、实现、验证到沉淀的完整研发工作流技能。它基于 `matt-skills-curated/1.1.0` 的中文翻译起步，接下来会逐步改造成我自己的方法、术语和工程习惯。
 
-## 内容
+## 当前内容
 
 - 42 个技能目录
-- 每个技能保留原始 `name`、目录名、脚本和配置结构
-- `SKILL.md` 正文、参考文档和界面名称已翻译为中文
-- frontmatter 的 `description` 保留英文，以降低技能触发边界的变化风险
+- 42 个 Codex 可发现的 `SKILL.md`
+- 覆盖需求澄清、规格拆解、架构设计、实现测试、调试评审、教学交接和长文写作
+- 正文与界面文案已中文化
+- 保留技能的 kebab-case 名称、脚本和配置结构
 
-## 翻译约定
+## 安装到 Codex
+
+Codex 会读取 `~/.agents/skills` 下的本地技能。推荐用符号链接安装，方便仓库更新后立即生效：
+
+```bash
+git clone https://github.com/WandingPace/LeapSkill.git
+mkdir -p ~/.agents/skills
+
+for dir in /path/to/LeapSkill/*/; do
+  ln -s "$dir" ~/.agents/skills/"$(basename "$dir")"
+done
+```
+
+安装后开启新对话即可使用。可以显式调用，例如 `$skill-conductor`、`$tdd`、`$research`；也可能根据任务描述被 Codex 自动选中。
+
+## 翻译与改造约定
 
 - 保留代码块、命令、路径、API 名称和工具名
 - 保留技能的 kebab-case 标识符
 - 保留 YAML/Markdown 结构
-- 对机器翻译导致的命令变化做了校验和修正
+- 修改一个技能时只提交该技能相关文件
+- 新增技能必须包含清晰的正面触发与 `Do NOT use for...` 负面边界
 
-## 后续维护
+## 维护检查
 
 如需继续完善翻译，建议按技能逐个提交，便于比较和回滚。可以使用下面的命令检查结构：
 
@@ -24,3 +41,5 @@
 find . -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l
 rg '^description: "' --glob 'SKILL.md'
 ```
+
+本地开发路径：`/Users/liuweiping/MyProject/LeapSkill`
