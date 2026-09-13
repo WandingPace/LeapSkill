@@ -1,0 +1,28 @@
+{
+  "name": "leapskill",
+  "version": "0.1.0",
+  "description": "A personal Codex workflow and engineering skill library.",
+  "author": {
+    "name": "WandingPace",
+    "url": "https://github.com/WandingPace"
+  },
+  "homepage": "https://github.com/WandingPace/LeapSkill",
+  "repository": "https://github.com/WandingPace/LeapSkill",
+  "license": "MIT",
+  "keywords": ["codex", "skills", "workflow", "engineering"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "LeapSkill",
+    "shortDescription": "Personal engineering workflow skills for Codex.",
+    "longDescription": "LeapSkill packages a curated personal skill library covering discovery, specification, implementation, testing, debugging, architecture, learning, handoff, and writing workflows.",
+    "developerName": "WandingPace",
+    "category": "Productivity",
+    "capabilities": ["Write"],
+    "websiteURL": "https://github.com/WandingPace/LeapSkill",
+    "defaultPrompt": [
+      "Help me route this engineering task to the right skill.",
+      "Turn this idea into a buildable specification.",
+      "Review and improve one of my Codex skills."
+    ]
+  }
+}

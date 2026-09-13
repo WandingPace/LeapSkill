@@ -4,7 +4,8 @@ LeapSkill 是我的个人 Codex 技能库：一套从想法、规格、实现、
 
 ## 当前内容
 
-- 42 个技能目录
+- 1 个 Codex 插件：`leapskill`
+- 42 个技能目录，位于 `plugins/leapskill/skills/`
 - 42 个 Codex 可发现的 `SKILL.md`
 - 覆盖需求澄清、规格拆解、架构设计、实现测试、调试评审、教学交接和长文写作
 - 正文与界面文案已中文化
@@ -12,15 +13,11 @@ LeapSkill 是我的个人 Codex 技能库：一套从想法、规格、实现、
 
 ## 安装到 Codex
 
-Codex 会读取 `~/.agents/skills` 下的本地技能。推荐用符号链接安装，方便仓库更新后立即生效：
+仓库已包含 Codex marketplace 清单，可以作为插件安装：
 
 ```bash
-git clone https://github.com/WandingPace/LeapSkill.git
-mkdir -p ~/.agents/skills
-
-for dir in /path/to/LeapSkill/*/; do
-  ln -s "$dir" ~/.agents/skills/"$(basename "$dir")"
-done
+codex plugin marketplace add /path/to/LeapSkill
+codex plugin add leapskill@leapskill
 ```
 
 安装后开启新对话即可使用。可以显式调用，例如 `$skill-conductor`、`$tdd`、`$research`；也可能根据任务描述被 Codex 自动选中。
@@ -38,8 +35,8 @@ done
 如需继续完善翻译，建议按技能逐个提交，便于比较和回滚。可以使用下面的命令检查结构：
 
 ```bash
-find . -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l
-rg '^description: "' --glob 'SKILL.md'
+find plugins/leapskill/skills -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l
+rg '^description: "' plugins/leapskill/skills --glob 'SKILL.md'
 ```
 
 本地开发路径：`/Users/liuweiping/MyProject/LeapSkill`

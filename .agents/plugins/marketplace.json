@@ -1,0 +1,20 @@
+{
+  "name": "leapskill",
+  "interface": {
+    "displayName": "Leapskill"
+  },
+  "plugins": [
+    {
+      "name": "leapskill",
+      "source": {
+        "source": "local",
+        "path": "./plugins/leapskill"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
