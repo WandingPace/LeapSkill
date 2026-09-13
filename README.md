@@ -2,10 +2,12 @@
 
 LeapSkill 是我的个人 Codex 技能库：一套从想法、规格、实现、验证到沉淀的完整研发工作流技能。它基于 `matt-skills-curated/1.1.0` 的中文翻译起步，接下来会逐步改造成我自己的方法、术语和工程习惯。
 
+原版仓库：<https://github.com/mattpocock/skills>（Matt Pocock 的公开技能库；本仓库的翻译基准是 `matt-skills-curated/1.1.0` 版本的 curated 子集，上游当前最新版已重构过 skill 内容和目录结构，逐文件对照时需留意版本差异）
+
 ## 当前内容
 
 - 1 个 Codex 插件：`leapskill`
-- 42 个技能目录，位于 `plugins/leapskill/skills/`
+- 42 个技能目录，按流程分组位于 `plugins/leapskill/skills/{requirements,specification,architecture,implementation,verification,support,learning}/`
 - 42 个 Codex 可发现的 `SKILL.md`
 - 覆盖需求澄清、规格拆解、架构设计、实现测试、调试评审、教学交接和长文写作
 - 正文与界面文案已中文化
@@ -35,7 +37,7 @@ codex plugin add leapskill@leapskill
 如需继续完善翻译，建议按技能逐个提交，便于比较和回滚。可以使用下面的命令检查结构：
 
 ```bash
-find plugins/leapskill/skills -mindepth 2 -maxdepth 2 -name SKILL.md | wc -l
+find plugins/leapskill/skills -type f -name SKILL.md | wc -l
 rg '^description: "' plugins/leapskill/skills --glob 'SKILL.md'
 ```
 

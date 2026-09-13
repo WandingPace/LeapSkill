@@ -1,0 +1,3 @@
+interface:
+  display_name: "To Spec"
+  short_description: "将对话转成技术规格"

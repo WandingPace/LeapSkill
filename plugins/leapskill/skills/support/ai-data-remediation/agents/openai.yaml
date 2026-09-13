@@ -1,0 +1,3 @@
+interface:
+  display_name: "AI Data Remediation"
+  short_description: "自动修复数据管道异常"

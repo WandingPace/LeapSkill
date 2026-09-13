@@ -1,0 +1,3 @@
+interface:
+  display_name: "Triage"
+  short_description: "按分诊角色推进 issue"

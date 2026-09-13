@@ -1,0 +1,3 @@
+interface:
+  display_name: "Wayfinder"
+  short_description: "把大型不确定项目映射为决策工单地图"

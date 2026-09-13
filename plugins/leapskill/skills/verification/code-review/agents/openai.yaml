@@ -1,0 +1,3 @@
+interface:
+  display_name: "Code Review"
+  short_description: "按标准与规范审查代码变更"

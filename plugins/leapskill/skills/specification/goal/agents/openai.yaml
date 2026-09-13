@@ -1,0 +1,3 @@
+interface:
+  display_name: "Goal Prompt Synthesis"
+  short_description: "综合自主目标提示和契约"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "To Questionnaire"
+  short_description: "把问题提前整理成文档，交由对方回答"

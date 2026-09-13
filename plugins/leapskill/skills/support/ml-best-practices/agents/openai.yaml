@@ -1,0 +1,3 @@
+interface:
+  display_name: "ML Best Practices"
+  short_description: "探索性分析、特征工程和评估"
