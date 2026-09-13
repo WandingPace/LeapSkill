@@ -1,0 +1,3 @@
+interface:
+  display_name: "设置 TS 深度模块"
+  short_description: "实施深度 TypeScript 模块"

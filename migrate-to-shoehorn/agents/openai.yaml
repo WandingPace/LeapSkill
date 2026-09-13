@@ -1,0 +1,3 @@
+interface:
+  display_name: "迁移到鞋拔子"
+  short_description: "用鞋拔子替换测试断言"

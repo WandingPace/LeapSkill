@@ -1,0 +1,3 @@
+interface:
+  display_name: "J空间推理"
+  short_description: "用于多步推理的内部认知工作空间"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "设置预提交"
+  short_description: "添加预提交质量检查"

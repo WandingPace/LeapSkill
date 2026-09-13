@@ -1,0 +1,3 @@
+interface:
+  display_name: "设置工程工作流程"
+  short_description: "配置存储库工作流程约定"

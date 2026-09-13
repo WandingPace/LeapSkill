@@ -1,0 +1,3 @@
+interface:
+  display_name: "不可触摸"
+  short_description: "将对话压缩为交接"

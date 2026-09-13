@@ -1,0 +1,3 @@
+interface:
+  display_name: "前往问卷调查"
+  short_description: "将问题预先加载到文档中供某人回答"
