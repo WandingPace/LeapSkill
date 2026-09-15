@@ -6,12 +6,42 @@ LeapSkill 是我的个人 Codex 技能库：一套从想法、规格、实现、
 
 ## 当前内容
 
-- 1 个 Codex 插件：`leapskill`
-- 42 个技能目录，按流程分组位于 `plugins/leapskill/skills/{requirements,specification,architecture,implementation,verification,support,learning}/`
-- 42 个 Codex 可发现的 `SKILL.md`
-- 覆盖需求澄清、规格拆解、架构设计、实现测试、调试评审、教学交接和长文写作
+- 1 个插件：`leapskill`（同时提供 Codex 与 Cursor marketplace 清单）
+- 53 个技能目录，按流程分组位于 `plugins/leapskill/skills/{requirements,specification,architecture,implementation,verification,support,learning,codm-tools}/`
+- 覆盖需求澄清、规格拆解、架构设计、实现测试、调试评审、教学交接、长文写作和 CODM 工具流
 - 正文与界面文案已中文化
 - 保留技能的 kebab-case 名称、脚本和配置结构
+
+## 安装到 Cursor
+
+仓库已包含 Cursor marketplace 清单，可被 Cursor Team Marketplace 索引：
+
+- Marketplace：`.cursor-plugin/marketplace.json`
+- 插件清单：`plugins/leapskill/.cursor-plugin/plugin.json`
+
+技能按分类嵌套在 `skills/{category}/{skill}/` 下。Cursor 插件索引默认只扫 `skills/` 一层，因此 `plugin.json` 里显式列出了每个技能目录。
+
+### Team Marketplace（推荐）
+
+1. 打开 [Cursor Dashboard → Plugins](https://cursor.com/dashboard?tab=plugins)
+2. Add Marketplace → Import from Repo
+3. 填入 `https://github.com/WandingPace/LeapSkill`
+4. 在 Customize 中安装 `leapskill`
+
+本地私有 Git 仓库也可以作为 Team Marketplace 导入，只要仓库根目录有 `.cursor-plugin/marketplace.json`。
+
+### 本地调试
+
+Cursor 只从 `~/.cursor/plugins/local/<plugin>` 发现本地插件；指向仓库外的符号链接会被跳过。把插件目录拷进去后 Reload Window：
+
+```powershell
+$dst = Join-Path $env:USERPROFILE ".cursor\plugins\local\leapskill"
+New-Item -ItemType Directory -Force -Path (Split-Path $dst) | Out-Null
+if (Test-Path $dst) { Remove-Item $dst -Recurse -Force }
+Copy-Item "I:\TencentGit\LeapSkill\plugins\leapskill" $dst -Recurse
+```
+
+然后 `Developer: Reload Window`，打开 Customize，确认 `LeapSkill` 及其技能已加载。聊天里可用 `/skill-conductor`、`/tdd`、`/research` 显式调用。
 
 ## 安装到 Codex
 

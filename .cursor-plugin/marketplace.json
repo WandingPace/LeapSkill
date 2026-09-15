@@ -1,0 +1,17 @@
+{
+  "name": "leapskill",
+  "owner": {
+    "name": "WandingPace"
+  },
+  "metadata": {
+    "description": "LeapSkill Cursor marketplace: personal engineering workflow skills from idea to handoff.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "leapskill",
+      "source": "./plugins/leapskill",
+      "description": "Personal engineering workflow skills covering discovery, specification, implementation, verification, and CODM tools."
+    }
+  ]
+}
