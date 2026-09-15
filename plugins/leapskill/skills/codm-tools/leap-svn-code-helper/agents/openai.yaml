@@ -1,0 +1,3 @@
+interface:
+  display_name: "leap:leap-svn-code-helper"
+  short_description: "CODM SVN workflow and C# to XLua hotfix helper"

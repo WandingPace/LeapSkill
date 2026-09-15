@@ -1,0 +1,19 @@
+{
+  "trunk_url": "http://tc-svn.tencent.com/TIMIJ3/FPSMobile_proj/trunk/CODM_CHN/Client",
+  "branch_root_url": "http://tc-svn.tencent.com/TIMIJ3/FPSMobile_proj/branches/CODM",
+  "client_subpath": "Client",
+  "branch_dir_pattern": "^(?P<date>\\d{8})_svn(?P<branch_rev>\\d+)_WWL(?P<version>[\\d.]+(?:\\+CN[\\d.]+)?)_[\\d.]+(?:_(?P<suffix>[\\w]+))?$",
+  "branch_display": {
+    "trunk_display_name": "Trunk",
+    "branch_display_template": "{version} 分支",
+    "branch_display_with_suffix_template": "{version}_{suffix} 分支"
+  },
+  "suffix_keywords": {
+    "体验服": "tiyanfu",
+    "tiyanfu": "tiyanfu",
+    "临时": "linshi",
+    "linshi": "linshi",
+    "next": "next",
+    "match": "match"
+  }
+}

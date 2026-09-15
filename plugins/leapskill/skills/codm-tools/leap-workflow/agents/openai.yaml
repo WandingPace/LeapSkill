@@ -1,0 +1,7 @@
+interface:
+  display_name: "leap:leap-workflow"
+  short_description: "Research, plan, battle-review, and staged implementation"
+  default_prompt: "Use $leap-workflow (Leap WorkFlow) to investigate this requirement, clarify unknowns, produce an approval-ready staged plan, and implement only approved stages."
+
+policy:
+  allow_implicit_invocation: false

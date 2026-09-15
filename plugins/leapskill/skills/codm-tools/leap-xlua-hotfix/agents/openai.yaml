@@ -1,0 +1,3 @@
+interface:
+  display_name: "leap:leap-xlua-hotfix"
+  short_description: "Generate or review minimal XLua hotfix scripts"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "leap:leap-unity-test-validation"
+  short_description: "Run Editor PlayMode switch validation with reports and CDB"

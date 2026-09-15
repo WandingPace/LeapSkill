@@ -1,0 +1,3 @@
+interface:
+  display_name: "leap:leap-drawcall-diff"
+  short_description: "Compare CODM DrawCallRecord captures"
