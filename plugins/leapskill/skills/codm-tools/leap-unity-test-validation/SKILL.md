@@ -1,25 +1,34 @@
 ---
 name: leap-unity-test-validation
-description: How-to for the G:/UnitySource/Tests/TestValidation harness (result.json, report.html, CDB). Test routing for G:/UnitySource lives in superpowers:test-driven-development Workspace Test Selection — do not treat this skill as the plan/TDD entry.
+description: How-to for the shared G:/UnitySource/Tests/TestValidation harness (result.json, report.html, CDB). Covers workspace-aware Unity.exe selection, run/report flow, and per-scene routing. Do NOT use for engine build/compile diagnosis (use cgame-engine build-verify) or for locating engine call chains (use cgame-engine code-discovery); this skill runs the validation harness only.
 ---
 
 # Unity Test Validation
 
 This skill is the harness how-to. For TDD RED/GREEN and plan verification in `G:\UnitySource`, follow `superpowers:test-driven-development` **Workspace Test Selection** (Debug Editor, then this script). Do not add a second test entry here.
 
-## 工程全路径（固定，不随当前工作目录变化）
+## 飞行前检查：先选定工作区的 Unity.exe
 
-测试工程只存在于 UnitySource 工作区，**不在其他工作区（如 G:\UnitySourceCODM）下**。所有命令一律使用下面的绝对路径，不要写成 `.\Tests\...` 之类的相对路径——当前工作目录不是 `G:\UnitySource` 时相对路径会失效：
+**不要先跑命令。先确认当前工作区，再决定用哪个 `Unity.exe`。** 测试工程只有一份（固定在 `G:\UnitySource\Tests\TestValidation`，跨工作区共享），但被测引擎二进制**必须来自当前工作区那次成功的 Debug build**。用别的工作区/旧 build 会编译失败或结果失真。完整解析步骤见 [references/workspace-resolution.md](references/workspace-resolution.md)。
+
+固定路径（不随工作区变）：
 
 | 项 | 全路径 |
 |---|---|
 | 测试工程根 | `G:\UnitySource\Tests\TestValidation` |
 | Runner 脚本 | `G:\UnitySource\Tests\TestValidation\Scripts\run-test-validation.ps1` |
-| Debug Editor 构建脚本 | `G:\UnitySource\BuildWindowsEditor.Bee.Debug.bat` |
-| 构建产物 Unity.exe | `G:\UnitySource\build\WindowsEditor\Unity.exe` |
 | 默认报告根目录 | `G:\UnitySource\Tests\TestValidation\Report\TestValidation` |
 
-Runner 脚本内部自解析工程与 Unity 路径，从任何工作目录调用都可以（示例统一用 `& G:\UnitySource\...\run-test-validation.ps1` 调用符，避免 `.\` 依赖）。
+随工作区变（每次确认）：Debug Editor 构建脚本 `<工作区根>\BuildWindowsEditor.Bee.Debug.bat` 与产物 `<工作区根>\build\WindowsEditor\Unity.exe`。用 `-EditorPath` 显式传给 runner（runner 默认按脚本位置解析到 `G:\UnitySource`，非该工作区时必须覆盖）。所有命令用绝对路径调用（`& G:\UnitySource\...\run-test-validation.ps1`），避免 `.\` 依赖。
+
+## 场景流程路由
+
+每场景的专属流程/断言/参数/已知坑放在 `references/scenes/<scene>.md`，按 `-CreateScene` / `-TestScene` 名路由。本 SKILL.md 只放公共 harness。新增场景时建同名 `<scene>.md`，别把场景细节堆进本文件。
+
+| 场景 (-CreateScene) | 流程文件 |
+|---|---|
+| `twoCamShadow` | [references/scenes/two-cam-shadow.md](references/scenes/two-cam-shadow.md) |
+| `srpBatcher` / `hism` / `hismBatch` / `addLightShadow` | 见下方「Result Contract」「Adding Another Switch」公共契约（暂无专属文件，需要时按 two-cam-shadow.md 模板补） |
 
 The current harness has one implemented switch example, `Graphics.enableSRPBatch`. Treat SRP as an example, not as the workflow boundary. Future switch tests should reuse the same phases, result contract, report, and CDB diagnostics.
 
@@ -110,6 +119,7 @@ Each run directory contains:
 
 - `result.json`
 - `screenshot.png` when rendering reaches capture
+- `capture.rdc` (RenderDoc multi-frame capture, written at Unity exit; copied next to `report.html`, and linked from the report Evidence list)
 - `editor.log`
 - `unity.log` in Player mode
 - `cdb.log` in CDB mode
