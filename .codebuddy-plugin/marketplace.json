@@ -1,0 +1,11 @@
+{
+  "name": "leapskill",
+  "owner": { "name": "WandingPace" },
+  "plugins": [
+    {
+      "name": "leapskill",
+      "source": "./plugins/leapskill",
+      "description": "Personal engineering workflow skills covering discovery, specification, implementation, verification, and CODM tools."
+    }
+  ]
+}
