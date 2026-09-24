@@ -1,55 +1,52 @@
-# Layout patterns
+# 布局模式
 
-## Contents
+## 目录
 
-- Shared grid
-- Class diagrams
-- Flowcharts
-- Sequence diagrams
-- Swimlane / actor flows
-- Architecture and ownership diagrams
-- Final checks
+- 共享网格
+- 类图
+- 流程图
+- 时序图
+- 泳道或角色流
+- 架构和所有权图
+- 最终检查
 
-## Shared grid
+## 共享网格
 
-Use this grid unless the user explicitly needs a different spatial structure.
+除非用户明确需要不同的空间结构，否则使用以下网格。
 
 - Column x = `40 + 200 * col`
 - Row y = `40 + 140 * row`
-- Process box: `160x60`; decision: `160x80`; class: `180x120`; note: `140x50`
-- Reserve one empty grid lane between semantic groups.
+- 流程框：`160x60`；判断框：`160x80`；类框：`180x120`；注释框：`140x50`
+- 语义组之间保留一条空网格带。
 
-Do not compute a full-page coordinate table in prose. Place cells directly and
-keep them on this grid.
+不要在正文中计算整页坐标表，直接放置单元格并保持在该网格上。
 
-## Class diagrams
+## 类图
 
-Use a three-layer layout:
+使用三层布局：
 
-1. **Top:** abstract parents and interfaces
-2. **Middle:** concrete owners and controllers
-3. **Bottom / right:** data, jobs, managers, and infrastructure
+1. **顶层：** 抽象父类和接口
+2. **中层：** 具体拥有者和控制器
+3. **底部或右侧：** 数据、任务、管理器和基础设施
 
-Rules:
+规则：
 
-- One class box has at most 6 fields and 6 methods.
-- Place inheritance edges vertically, parent above child.
-- Place aggregation/composition edges horizontally, owner left of part.
-- Use one relation arrow for one relationship; do not duplicate associations.
-- Route dependency edges around boxes with `routing="libavoid"`; do not thread
-  them through class bodies.
-- If one class connects to more than five others, add an intermediate hub or
-  split the class into a second page.
+- 每个类框最多包含 6 个字段和 6 个方法。
+- 继承边垂直放置，父类在子类上方。
+- 聚合或组合边水平放置，拥有者在部件左侧。
+- 一条关系只使用一个箭头，不要重复关联。
+- 用 `routing="libavoid"` 让依赖边绕开方框，不要穿过类主体。
+- 一个类连接超过五个其他类时，增加中间枢纽，或把该类拆到第二页。
 
-Use standard UML notation:
+使用标准 UML 表示法：
 
-- Inheritance / realization: hollow triangle arrowhead
-- Composition: filled diamond at owner
-- Aggregation: hollow diamond at owner
-- Dependency: dashed open arrow
-- Association: solid open arrow
+- 继承或实现：空心三角箭头
+- 组合：拥有者端为实心菱形
+- 聚合：拥有者端为空心菱形
+- 依赖：虚线开放箭头
+- 关联：实线开放箭头
 
-Class style:
+类样式：
 
 ```xml
 <mxCell id="classA" value="&lt;b&gt;ClassName&lt;/b&gt;&lt;hr&gt;+ field: Type&lt;br&gt;+ method(): Result"
@@ -59,60 +56,56 @@ Class style:
 </mxCell>
 ```
 
-Keep the class name row separated from members; do not make one giant text
-label without visual hierarchy.
+类名行要与成员分开，不要使用没有视觉层级的大段文本标签。
 
-## Flowcharts
+## 流程图
 
-Use a vertical main path and horizontal branches.
+使用垂直主路径和水平分支。
 
-- Main path: one column, top to bottom.
-- Decisions: directly under the step that produces the question.
-- Success path: continue downward; labels `Yes` / `OK`.
-- Failure or alternate path: leave from the right, then route downward.
-- Loop-back: leave the left side and travel up the outer margin.
-- Parallel starts: split into equal columns, then join before the next stage.
+- 主路径：单列，从上到下。
+- 判断：紧跟在产生该问题的步骤下方。
+- 成功路径：继续向下；标签使用 `Yes` 或 `OK`。
+- 失败或备选路径：从右侧离开，再向下绕行。
+- 回环：从左侧离开，沿外侧边距向上。
+- 并行起点：拆成等宽列，在下一阶段前汇合。
 
-Rules:
+规则：
 
-- One node expresses one action or decision.
-- A decision has at most three outgoing branches.
-- Use a rhombus only for a real branch, never for a stage title.
-- Use `edgeStyle=orthogonalEdgeStyle;rounded=1`.
-- Do not use diagonal edges.
-- Do not cross the main path with an alternate path.
-- If the main path changes column more than twice, simplify the model or split
-  stages into subgraphs.
+- 一个节点只表达一个动作或判断。
+- 一个判断最多有三条输出分支。
+- 菱形只用于真实分支，不能用作阶段标题。
+- 使用 `edgeStyle=orthogonalEdgeStyle;rounded=1`。
+- 不要使用斜线。
+- 备选路径不要穿过主路径。
+- 主路径换列超过两次时，简化模型或把阶段拆成子图。
 
-Fan-out anchors:
+扇出锚点：
 
-- Left target: `entryX=0.25`
-- Center target: `entryX=0.5`
-- Right target: `entryX=0.75`
-- Source exits from `exitX=0.5,exitY=1` unless geometry requires side exits
+- 左侧目标：`entryX=0.25`
+- 中间目标：`entryX=0.5`
+- 右侧目标：`entryX=0.75`
+- 除非几何结构要求侧向出口，否则源点从 `exitX=0.5,exitY=1` 离开
 
-## Sequence diagrams
+## 时序图
 
-Participants:
+参与者：
 
-- Order left to right by first appearance in the interaction.
-- Put external actors at the far left.
-- Put queues, schedulers, or infrastructure at the far right.
-- Use consistent participant width, preferably `140`.
-- Keep 80-120px between lifeline centers.
+- 按交互中首次出现的顺序从左到右排列。
+- 外部角色放在最左侧。
+- 队列、调度器或基础设施放在最右侧。
+- 参与者宽度保持一致，优先使用 `140`。
+- 生命线中心之间保留 80 到 120px。
 
-Messages:
+消息：
 
-- Reserve a 48px vertical slot per message.
-- Messages only go downward in time.
-- Put self-messages on the participant's own lifeline with a short right-side
-  return stub.
-- Use dashed open arrows for returns.
-- Group a coherent phase (`Validation`, `Prepare`, `Dispatch`, `Consume`) in an
-  activation rectangle; do not create a block for every two messages.
-- Use `autonumber` semantics in labels only when ordering is not already clear.
+- 每条消息保留 48px 垂直空间。
+- 消息在时间轴上只能向下。
+- 自调用消息放在参与者自己的生命线上，并在右侧画一条短返回线。
+- 返回消息使用虚线开放箭头。
+- 用激活矩形分组同一阶段（`Validation`、`Prepare`、`Dispatch`、`Consume`）；不要每两条消息就建一个块。
+- 只有顺序本身不清晰时，才在标签中使用 `autonumber` 语义。
 
-Construction:
+构造：
 
 ```xml
 <mxCell id="participant" value="Name"
@@ -122,47 +115,42 @@ Construction:
 </mxCell>
 ```
 
-Messages may use fixed source and target points on lifeline centers. Keep
-arrow labels above the line and never overlap activation bars.
+消息可以使用生命线中心的固定源点和目标点。箭头标签放在线上方，绝不要与激活条重叠。
 
-## Swimlane / actor flows
+## 泳道或角色流
 
-Use flat lanes when one axis explains ownership or responsibility.
+当某一轴能表达所有权或职责时，使用扁平泳道。
 
-- Lane height: 150; lane title area: 110 for vertical lane titles.
-- Node position inside lane: `x=120 + 180*col`, `y=45`.
-- Do not nest swimlanes.
-- Keep one row of nodes per lane; a lane is a responsibility strip, not a
-  box container for arbitrary content.
-- Cross-lane edges use `parent="1"`.
+- 泳道高度：150；垂直播道标题区：110。
+- 泳道内节点位置：`x=120 + 180*col`、`y=45`。
+- 不要嵌套泳道。
+- 每条泳道只放一行节点；泳道是职责带，不是任意内容的容器。
+- 跨泳道连线使用 `parent="1"`。
 
-Use a cross-functional table only when both actor and phase must be visible.
+只有必须同时展示角色和阶段时，才使用跨职能表格。
 
-## Architecture and ownership diagrams
+## 架构和所有权图
 
-Use containers for real ownership boundaries:
+只为真实所有权边界使用容器：
 
-- External actors stay outside implementation containers.
-- One container per deployable service, module, engine subsystem, or runtime
-   boundary.
-- Use `swimlane;startSize=24` for nested containers.
-- Prefer one gateway / broker / manager hub when many edges converge.
-- Put data stores on the right or bottom edge.
-- Avoid drawing every dependency; show relationships that explain ownership,
-  lifecycle, or primary data flow.
+- 外部角色留在实现容器之外。
+- 每个可部署服务、模块、引擎子系统或运行时边界使用一个容器。
+- 嵌套容器使用 `swimlane;startSize=24`。
+- 多条边汇聚时，优先使用一个网关、broker 或管理器枢纽。
+- 数据存储放在右侧或底部边缘。
+- 不要画出所有依赖；只展示能说明所有权、生命周期或主要数据流的关系。
 
-## Final checks
+## 最终检查
 
-Before delivering:
+交付前：
 
-- [ ] Diagram creation/editing went through `mcp__drawio` tools.
-- [ ] The diagram has one obvious reading direction.
-- [ ] Every visible label is readable and non-overlapping.
-- [ ] No edge crosses through a node body.
-- [ ] No unrelated boxes overlap.
-- [ ] Each decision branch is labeled.
-- [ ] One semantic color system is used consistently.
-- [ ] Dense diagrams were previewed with `routing="libavoid"`.
-- [ ] Multi-view models use one named page per view.
-- [ ] Existing `.drawio` page edits used `list_pages` → `get_page` →
-      `set_page`, preserving unrelated pages.
+- [ ] 图表的创建和编辑都通过 `mcp__drawio` 工具完成。
+- [ ] 图表只有一个明确的阅读方向。
+- [ ] 所有可见标签都清晰且不重叠。
+- [ ] 没有连线穿过节点主体。
+- [ ] 没有无关方框重叠。
+- [ ] 每条判断分支都有标签。
+- [ ] 语义颜色体系使用一致。
+- [ ] 密集图表已用 `routing="libavoid"` 预览。
+- [ ] 多视图模型为每个视图使用一个命名页面。
+- [ ] 编辑已有 `.drawio` 页面时使用 `list_pages` → `get_page` → `set_page`，并保留无关页面。

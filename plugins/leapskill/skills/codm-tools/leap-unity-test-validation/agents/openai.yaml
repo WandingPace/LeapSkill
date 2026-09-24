@@ -1,3 +1,3 @@
 interface:
   display_name: "leap:leap-unity-test-validation"
-  short_description: "Run Editor PlayMode switch validation with reports and CDB"
+  short_description: "运行 Editor PlayMode 开关验证并产出报告与 CDB"

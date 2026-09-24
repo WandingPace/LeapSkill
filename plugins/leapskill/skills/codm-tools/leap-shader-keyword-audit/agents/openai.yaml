@@ -1,0 +1,4 @@
+interface:
+  display_name: "leap:leap-shader-keyword-audit"
+  short_description: "审计、删除并核对 CODM Shader 关键字资源引用"
+  default_prompt: "审计 CODM Shader 关键字，找出资源侧独有项，必要时删除并核对 SVN diff。"

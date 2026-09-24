@@ -1,6 +1,6 @@
 # 学习记录格式
 
-学习记录保存在 `./learning-records/` 中，使用顺序编号：`0001-slug.md`、`0002-slug.md` 等。目录按需创建：只在写第一条记录时建立。
+学习记录固定保存在当前项目的 `Docs/Teach/<topic-slug>/learning-records/` 中，使用顺序编号：`0001-slug.md`、`0002-slug.md` 等。目录按需创建：只在写第一条记录时建立。
 
 它是教学版的 ADR：记录不明显的经验、关键洞察、以及会影响后续课程的既有知识。它还用来计算“最近发展区”。
 
@@ -24,7 +24,7 @@
 
 ## 编号
 
-扫描 `./learning-records/` 中现有编号的最大值，然后加一。
+扫描 `Docs/Teach/<topic-slug>/learning-records/` 中现有编号的最大值，然后加一。
 
 ## 什么时候写学习记录
 

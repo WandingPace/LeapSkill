@@ -39,6 +39,7 @@
 | “写新 skill”、“skill 评测”、“10 条规范原则” | `skill-conductor` | `skill-conductor` ➔ `writing-for-agents` | 一般应用编码 |
 | “压缩会话”、“迁移上下文”、“保存交接” | `handoff` | `handoff` | 向 git 提交代码 |
 | “会话回顾”、“审计 agent 错误” | `retro` | `retro` ➔ `writing-for-agents` | 任务实现进行中 |
+| “show-me”、“画出来”、“可视化解释” | `show-me` | `show-me` | 用户只想要普通 prose 解释，或技能已被显式禁用 |
 | “换个简单说法”、“用大白语解释”、“等等什么” | `wait-what` | `wait-what` | 初期规划或头脑风暴 |
 | “教技术概念”、“交互式 HTML 实验室”、“ZPD” | `teach` | `teach` | 静默自动代码生成 |
 | “写 agent 指令”、“AGENTS.md 规则”、“上下文指针” | `writing-for-agents` | `writing-for-agents` ➔ `skill-conductor` | 面向人的营销文案 |

@@ -1,3 +1,3 @@
 interface:
   display_name: "leap:leap-rdc-debug-diff"
-  short_description: "Compare RenderDoc shader cbuffers between captures"
+  short_description: "对比 RenderDoc 抓帧中的着色器常量缓冲区"

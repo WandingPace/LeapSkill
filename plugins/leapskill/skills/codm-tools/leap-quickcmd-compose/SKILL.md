@@ -1,41 +1,41 @@
 ---
 name: leap-quickcmd-compose
-description: Dynamically discover and compose the user's PowerShell QuickCmd commands from H:\MyNote\Obsidian_data\assets\ps\QuickCmd.ps1. Use when the user asks in Chinese or English to execute one or more QuickCmd operations, including ordered workflows such as closing CODM and then fully updating the project. Always show the resolved qc-* invocation sequence before executing it.
+description: "用于发现、编排并执行用户 PowerShell QuickCmd 中的 qc-* 命令，支持关闭 CODM、完整更新项目等有序工作流。不用于硬编码命令目录、绕过实时命令列表或执行与 QuickCmd 无关的 PowerShell 操作。"
 ---
 
-# QuickCmd Compose
+# QuickCmd 编排
 
-Use `scripts/quickcmd-runner.ps1` as the only execution entry point. Never duplicate or hard-code the command catalog from `QuickCmd.ps1` in this skill.
+只能通过 `scripts/quickcmd-runner.ps1` 执行命令。不要在本 skill 中复制或硬编码 `QuickCmd.ps1` 的命令目录。
 
-## Workflow
+## 工作流
 
-1. Run the runner with `-List -Json` before every requested workflow. This dot-sources the current `QuickCmd.ps1` and returns its live command catalog.
-2. Map each user-requested action to a catalog entry using its display name and `qc-*` function name. Preserve the exact order stated by the user.
-3. If an action has one clear match, continue without asking. Ask only when multiple live entries remain genuinely plausible or no entry matches.
-4. Before execution, tell the user the exact sequence in one short line, for example: `调用顺序：qc-closeCODM -> qc-updateProject`.
-5. Execute the sequence with one runner call and `-Commands`, preserving order. Do not use QuickCmd's interactive `c`/fzf picker.
-6. Report each command's success or failure. Stop the sequence on the first failure unless the user explicitly requests best-effort continuation.
+1. 每次执行请求的工作流前，先用 `-List -Json` 运行 runner。该操作会点源当前 `QuickCmd.ps1`，并返回实时命令目录。
+2. 根据显示名称和 `qc-*` 函数名，把用户请求的每个动作映射到目录项。必须保持用户指定的顺序。
+3. 如果动作只有一个明确匹配项，直接继续，不要询问。只有存在多个合理候选或完全没有匹配项时才询问。
+4. 执行前，用一行简短文字告诉用户确切顺序，例如：`调用顺序：qc-closeCODM -> qc-updateProject`。
+5. 使用一次 runner 调用和 `-Commands` 按顺序执行。不要使用 QuickCmd 的交互式 `c`/fzf 选择器。
+6. 报告每条命令的成功或失败。首次失败即停止；除非用户明确要求尽力继续。
 
-## Commands
+## 命令
 
-List the current catalog:
+列出当前命令目录：
 
 ```powershell
 & "<skill-dir>\scripts\quickcmd-runner.ps1" -List -Json
 ```
 
-Execute an ordered workflow:
+执行有序工作流：
 
 ```powershell
 & "<skill-dir>\scripts\quickcmd-runner.ps1" -Commands qc-closeCODM,qc-updateProject
 ```
 
-Use `-ContinueOnError` only when the user explicitly asks to continue after failures.
+只有用户明确要求失败后继续时，才使用 `-ContinueOnError`。
 
-## Safety
+## 安全规则
 
-- Treat the user's direct request to close, open, update, build, configure, or forward as authorization for the matching live QuickCmd entry.
-- Do not silently add actions the user did not request.
-- Never invoke a `qc-*` function that is absent from the live catalog.
-- Keep execution visible: show the resolved sequence in chat and allow the runner to print command headers and native output.
-- If loading the source file fails, stop and report the path/error; do not fall back to a stale catalog.
+- 用户直接要求关闭、打开、更新、构建、配置或转发时，视为授权执行对应的实时 QuickCmd 条目。
+- 不要静默增加用户没有请求的动作。
+- 绝不调用实时目录中不存在的 `qc-*` 函数。
+- 保持执行可见：在对话中展示解析后的顺序，并允许 runner 打印命令头和原始输出。
+- 如果加载源文件失败，停止并报告路径和错误；不要回退到过期目录。

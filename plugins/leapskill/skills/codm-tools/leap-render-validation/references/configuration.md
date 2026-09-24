@@ -1,20 +1,20 @@
-# Configuration
+# 配置
 
-## Case files
+## Case 文件
 
-Cases live in:
+Case 位于：
 
 ```text
 G:\UnitySource\Tests\RenderValidation\Cases
 ```
 
-Default case:
+默认 Case：
 
 ```text
 material-mesh-setpass
 ```
 
-Core API fields:
+核心 API 字段：
 
 ```json
 {
@@ -23,39 +23,39 @@ Core API fields:
 }
 ```
 
-- `graphicsApi`: default API for `run`.
-- `graphicsApis`: ordered list for `matrix`.
-- `gles` maps to `OpenGLES3` and `-force-gles`.
+- `graphicsApi`：`run` 使用的默认 API。
+- `graphicsApis`：`matrix` 使用的有序列表。
+- `gles` 映射为 `OpenGLES3` 和 `-force-gles`。
 
-Do not add baseline paths or canonical image gates. Matrix results compare variants produced by the same run.
+不要添加基线路径或标准图像门禁。矩阵结果只比较同一次运行产生的变体。
 
-## Scene requirements
+## 场景要求
 
-Generated scenes are produced by `RenderValidationBuild.cs`. A custom scene must:
+生成场景由 `RenderValidationBuild.cs` 产生。自定义场景必须满足：
 
-- live under `Tests/RenderValidation/Project/Assets`;
-- be referenced by a Case JSON project-relative path;
-- have zero or one `IRenderValidationScene`; generated scenes can use the runtime fallback;
-- become deterministic in `EnterStableState`;
-- avoid random, asynchronous, or time-dependent changes during capture.
+- 位于 `Tests/RenderValidation/Project/Assets` 下；
+- 由 Case JSON 中的项目相对路径引用；
+- 包含零个或一个 `IRenderValidationScene`；生成场景可以使用运行时回退；
+- 在 `EnterStableState` 中进入确定性状态；
+- 抓帧期间避免随机、异步或依赖时间的变化。
 
-## Switch parameters
+## 开关参数
 
-`matrix` and `compare` accept a public or non-public static property/field through reflection:
+`matrix` 和 `compare` 通过反射接受 public 或 non-public 的静态属性或字段：
 
-- `SwitchType`: full C# type name, for example `UnityEngine.Graphics`.
-- `SwitchMember`: property or field name.
-- `BeforeValue` / `AfterValue`: `bool`, `int`, `float`, `string`, or enum text.
+- `SwitchType`：完整 C# 类型名，例如 `UnityEngine.Graphics`。
+- `SwitchMember`：属性或字段名。
+- `BeforeValue` / `AfterValue`：`bool`、`int`、`float`、`string` 或枚举文本。
 
-Prefer switches that do not alter rendering loop shape when the goal is workflow validation. The validated smoke switch is:
+流程验证时优先选择不会改变渲染循环形态的开关。已验证的冒烟开关为：
 
 ```text
 UnityEngine.Graphics.enableRenderThreadEarlySync=false|true
 ```
 
-## Output contract
+## 输出契约
 
-Each variant directory should contain:
+每个变体目录应包含：
 
 ```text
 capture.rdc
@@ -68,10 +68,10 @@ player.log
 capture.log
 ```
 
-`matrix-report.html` must contain one independent slider per API and data formatted as:
+`matrix-report.html` 必须为每个 API 提供一个独立滑块，并按以下格式展示数据：
 
 ```text
 Before | After
 ```
 
-The HTML report must not contain unresolved `{{TOKEN}}` placeholders.
+HTML 报告不能包含未解析的 `{{TOKEN}}` 占位符。

@@ -1,345 +1,345 @@
 ---
 name: leap-renderdoc-mcp
-description: Analyze RenderDoc GPU frame captures with renderdoc-mcp MCP tools. Use when Codex needs to inspect .rdc captures, diagnose black screens or visual artifacts, explain frame structure, inspect specific draw calls, or investigate GPU rendering and performance issues.
+description: "用于通过 renderdoc-mcp MCP 工具分析 RenderDoc .rdc 抓帧，包括黑屏、视觉异常、帧结构、具体 draw、GPU 渲染和性能问题。不用于仅比较常量缓冲区；该场景应使用 leap-rdc-debug-diff。"
 ---
 
 # RenderDoc MCP
 
-Use renderdoc-mcp to analyze GPU frame captures and debug rendering problems.
+使用 `renderdoc-mcp` 分析 GPU 抓帧并诊断渲染问题。
 
-Always use the MCP server named `renderdoc-mcp` for tool calls.
+调用工具时始终使用名为 `renderdoc-mcp` 的 MCP server。
 
-When you need shell-based or batch workflows outside the MCP tool surface, use `renderdoc-cli` from `PATH`.
+当 MCP 工具范围外需要 shell 或批处理流程时，使用 `PATH` 中的 `renderdoc-cli`。
 
-## Analysis Framework
+## 分析框架
 
-Every analysis task follows this flow:
+每次分析任务都遵循以下流程：
 
 ```text
-1. Understand goal -> what does the user want to know?
-2. Open and gather -> load the capture and collect context in parallel
-3. Route -> pick the right diagnostic workflow
-4. Execute -> drill down with verification at each step
-5. Summarize -> present findings with evidence
+1. 理解目标 -> 用户想知道什么？
+2. 打开并收集 -> 加载抓帧并并行收集上下文
+3. 路由 -> 选择正确的诊断流程
+4. 执行 -> 每一步都边验证边下钻
+5. 总结 -> 结合证据展示结论
 ```
 
-## Phase 1: Open and Gather Context
+## 阶段 1：打开抓帧并收集上下文
 
-### Opening a Capture
+### 打开抓帧
 
-From file: call `open_capture` with the `.rdc` path.
+从文件打开：用 `.rdc` 路径调用 `open_capture`。
 
-From app: call `capture_frame` to launch the app, inject RenderDoc, capture a frame, and auto-open it.
+从应用打开：调用 `capture_frame` 启动应用、注入 RenderDoc、抓取一帧并自动打开。
 
-Verification: check the returned event count. If it is `0`, the capture is empty and you should report that immediately.
+验证：检查返回的 event 数量。如果为 `0`，说明抓帧为空，应立即报告。
 
-Error recovery:
-- If `open_capture` fails, verify the path exists and points to a valid `.rdc` file.
-- If `capture_frame` fails, check the executable path, whether the app needs admin privileges, whether it exits immediately, and whether `delayFrames` should be increased.
+错误恢复：
+- `open_capture` 失败时，确认路径存在且指向有效的 `.rdc` 文件。
+- `capture_frame` 失败时，检查可执行文件路径、应用是否需要管理员权限、是否立即退出，以及是否需要增大 `delayFrames`。
 
-### Initial Context Gathering
+### 初始上下文收集
 
-After a capture is open, call these tools in parallel because they are independent:
+抓帧打开后，并行调用以下互不依赖的工具：
 
-| Tool | What it tells you |
+| 工具 | 提供的信息 |
 |------|-------------------|
-| `get_capture_info` | API, GPU, driver, event count |
-| `get_stats` | Per-pass draw and triangle counts, top draws, largest resources |
-| `get_log` | Validation errors and debug messages; check HIGH severity first |
-| `list_passes` | Frame structure: pass names and draw counts |
+| `get_capture_info` | API、GPU、驱动、event 数量 |
+| `get_stats` | 各 pass 的 draw 和三角形数量、头部 draw、最大资源 |
+| `get_log` | 校验错误和调试消息；优先检查 HIGH 级别 |
+| `list_passes` | 帧结构：pass 名称和 draw 数量 |
 
-Before moving on, summarize:
-- Which graphics API is in use?
-- How many passes and draws are present?
-- Are there any HIGH-severity validation errors?
-- Which passes or draws look most expensive?
+继续分析前先总结：
+- 当前使用哪个图形 API？
+- 有多少个 pass 和 draw？
+- 是否存在 HIGH 级别的校验错误？
+- 哪些 pass 或 draw 最昂贵？
 
-Use that summary as the working context for the rest of the analysis.
+后续分析以该总结作为工作上下文。
 
-## Phase 2: Route to a Workflow
+## 阶段 2：路由到诊断流程
 
-Choose a workflow based on the user's goal:
+根据用户目标选择流程：
 
-| User goal | Workflow |
+| 用户目标 | 流程 |
 |-----------|----------|
-| "Screen is black" or "nothing renders" | Black Screen Diagnosis |
-| "Colors are wrong" or "there are artifacts" | Visual Artifact Diagnosis |
-| "Performance is bad" or "too slow" | Performance Analysis |
-| "Explain what this frame does" | Frame Walkthrough |
-| "Debug this specific draw call" | Targeted Draw Inspection |
-| "Compare two captures" or "what changed between frames" | Frame Regression Diagnosis |
-| General or unclear request | Ask the user what they want to investigate |
+| “屏幕是黑的”或“没有渲染” | 黑屏诊断 |
+| “颜色不对”或“有视觉异常” | 视觉异常诊断 |
+| “性能差”或“太慢” | 性能分析 |
+| “解释这一帧做了什么” | 帧流程讲解 |
+| “调试这个具体 draw call” | 指定 draw 检查 |
+| “对比两份抓帧”或“两帧之间变化了什么” | 帧回归诊断 |
+| 通用或目标不明确的请求 | 询问用户想调查什么 |
 
-## Diagnostic Workflows
+## 诊断流程
 
-### Black Screen Diagnosis
+### 黑屏诊断
 
 ```text
 list_draws
   draws = 0?
-    -> No geometry submitted. Check:
-       - list_events for Clear or Dispatch events
-       - get_log for pipeline creation or binding errors
-       - report "No draw calls found" with likely causes
+    -> 没有提交几何体。检查：
+       - 用 list_events 查看 Clear 或 Dispatch event
+       - 用 get_log 查看 pipeline 创建或绑定错误
+       - 报告“No draw calls found”及可能原因
   draws > 0?
-    -> goto_event for the last draw and get_pipeline_state in parallel
-       no render target bound?
-         -> report that output goes nowhere
-       render target bound?
+    -> 对最后一个 draw 并行执行 goto_event 和 get_pipeline_state
+       没有绑定 render target？
+         -> 报告输出没有落到任何目标
+       已绑定 render target？
          -> export_render_target
-            render target has content?
-              -> likely a present or swapchain issue; inspect Present-related events
-            render target is black?
-              -> inspect bindings and shaders:
+            render target 有内容？
+              -> 可能是 Present 或 swapchain 问题；检查 Present 相关 event
+            render target 是黑的？
+              -> 检查绑定和 shader：
                  - get_bindings
                  - get_shader ps
                  - get_shader vs
 ```
 
-Parallel opportunity: `goto_event` and `get_pipeline_state` can run in parallel when they target the same `eventId`.
+并行机会：`goto_event` 和 `get_pipeline_state` 指向同一个 `eventId` 时可以并行执行。
 
-### Visual Artifact Diagnosis
+### 视觉异常诊断
 
 ```text
-Identify the problematic draw, either from the user or by exporting render targets
-  -> goto_event for that draw
-  -> get_pipeline_state and get_bindings in parallel
-     - inspect blend state
-     - inspect render target format
-     - inspect bound textures
-     - export suspicious textures when needed
-     - inspect shaders:
+从用户信息或导出 render target 找到有问题的 draw
+  -> 对该 draw 执行 goto_event
+  -> 并行执行 get_pipeline_state 和 get_bindings
+     - 检查 blend state
+     - 检查 render target 格式
+     - 检查绑定纹理
+     - 需要时导出可疑纹理
+     - 检查 shader：
        - get_shader ps mode=disasm
        - get_shader ps mode=reflect
-       - search_shaders if you need similar shader matches
+       - 需要查找相似 shader 时使用 search_shaders
 ```
 
-If multiple draws look suspicious, show the candidate event IDs and names, export their render targets, and ask the user which one looks wrong.
+如果有多个可疑 draw，列出候选 event ID 和名称，导出它们的 render target，再询问用户哪个表现不正确。
 
-### Performance Analysis
+### 性能分析
 
 ```text
-Start from get_stats
-  -> inspect top draws by triangle count
-  -> goto_event and get_draw_info for heavy draws
-  -> inspect pipeline complexity with get_pipeline_state
-  -> inspect shader reflection with get_shader vs/ps mode=reflect
-  -> inspect oversized resources with get_resource_info
-  -> inspect the heaviest pass with get_pass_info
-  -> look for redundant draws with similar shaders and resources
+从 get_stats 开始
+  -> 按三角形数量检查头部 draw
+  -> 对高开销 draw 执行 goto_event 和 get_draw_info
+  -> 用 get_pipeline_state 检查 pipeline 复杂度
+  -> 用 get_shader vs/ps mode=reflect 检查 shader 反射
+  -> 用 get_resource_info 检查过大资源
+  -> 用 get_pass_info 检查最重的 pass
+  -> 查找 shader 和资源相似的多余 draw
 ```
 
-Report issues by impact. For each one, state what it is, where it occurs, how severe it is, and what the likely improvement is.
+按影响排序报告问题。每项都要说明问题是什么、出现在哪里、严重程度，以及可能的改进方向。
 
-### Frame Walkthrough
+### 帧流程讲解
 
 ```text
 list_passes
-  -> for each important pass:
+  -> 对每个重要 pass：
      - get_pass_info
-     - goto_event for the first draw and get_pipeline_state in parallel
-     - describe the pass inputs, shaders, and outputs
-     - export_render_target to show the pass result
-  -> end with a narrative from start to finish
+     - 对第一个 draw 并行执行 goto_event 和 get_pipeline_state
+     - 描述 pass 输入、shader 和输出
+     - 用 export_render_target 展示 pass 结果
+  -> 最后按从开始到结束的顺序讲解
 ```
 
-Parallel opportunity: when passes are independent analysis tasks, inspect two or three in parallel.
+并行机会：当多个 pass 是独立分析任务时，可并行检查两到三个。
 
-### Pixel-Level Diagnosis
+### 像素级诊断
 
-When investigating why a pixel has the wrong color or is missing:
+调查某个像素颜色错误或缺失时：
 
-1. **pick_pixel** — Read the current pixel color to confirm the issue
-2. **pixel_history** — Find which draws modified this pixel, check if any were culled/discarded
-3. **debug_pixel** — Trace the fragment shader execution to find where the wrong value comes from
-4. **get_texture_stats** — Check if input textures have unexpected ranges (NaN, all-zero, etc.)
+1. **pick_pixel**：读取当前像素颜色，确认问题。
+2. **pixel_history**：找出哪些 draw 修改了该像素，并检查是否有 draw 被剔除或丢弃。
+3. **debug_pixel**：跟踪片元 shader 执行，定位错误值的来源。
+4. **get_texture_stats**：检查输入纹理的范围是否异常（NaN、全零等）。
 
-### Shader Debugging
+### Shader 调试
 
-When a draw produces wrong output:
+某个 draw 输出错误时：
 
-1. **debug_vertex** / **debug_pixel** — Trace shader execution with mode="summary" first
-2. If inputs look wrong, check bindings with **get_bindings**
-3. If logic seems wrong, re-run with mode="trace" for step-by-step execution
+1. 先用 **debug_vertex** 或 **debug_pixel**、`mode="summary"` 跟踪 shader 执行。
+2. 输入看起来不对时，用 **get_bindings** 检查绑定。
+3. 逻辑看起来不对时，改用 `mode="trace"` 逐步执行。
 
-### Frame Regression Diagnosis
+### 帧回归诊断
 
-When comparing two captures to find rendering differences:
+对比两份抓帧以定位渲染差异时：
 
-1. `diff_open` captureA captureB → Load both captures
-2. `diff_summary` → Quick overview: any differences? Check `divergedAt` field
-3. `diff_draws` → Which draws changed/added/removed?
-4. `diff_pipeline "MarkerPath"` → What pipeline state changed at that draw?
-5. `diff_framebuffer` with `diffOutput` → Pixel-level visual comparison
-6. `diff_close` → Clean up
+1. `diff_open` captureA captureB：加载两份抓帧。
+2. `diff_summary`：快速判断是否存在差异，并检查 `divergedAt` 字段。
+3. `diff_draws`：哪些 draw 发生变化、新增或删除？
+4. `diff_pipeline "MarkerPath"`：该 draw 的 pipeline state 发生了什么变化？
+5. 带 `diffOutput` 的 `diff_framebuffer`：执行像素级视觉对比。
+6. `diff_close`：清理资源。
 
-### Targeted Draw Inspection
+### 指定 draw 检查
 
-When the user specifies an event ID or draw name:
+用户指定 event ID 或 draw 名称时：
 
 ```text
-goto_event + get_pipeline_state + get_bindings in parallel
-  -> describe:
-     - vertex shader with get_shader vs mode=reflect
-     - pixel shader with get_shader ps mode=reflect
-     - bound textures from bindings
-     - render targets from pipeline state
-     - viewport from pipeline state
-  -> go deeper when needed:
+并行执行 goto_event、get_pipeline_state 和 get_bindings
+  -> 描述：
+     - 用 get_shader vs mode=reflect 检查顶点 shader
+     - 用 get_shader ps mode=reflect 检查像素 shader
+     - 从 bindings 获取绑定纹理
+     - 从 pipeline state 获取 render target
+     - 从 pipeline state 获取 viewport
+  -> 需要时继续深入：
      - get_shader vs/ps mode=disasm
      - export_render_target
      - export_texture
      - get_draw_info
 ```
 
-## Verification Checkpoints
+## 验证检查点
 
-Apply these checks throughout the analysis:
+在整个分析过程中执行以下检查：
 
-| After this step | Verify |
+| 此步骤之后 | 验证 |
 |----------------|--------|
-| `open_capture` or `capture_frame` | Event count is greater than 0 |
-| `get_log` | HIGH severity messages are investigated first |
-| `list_draws` | Draw count matches expectations |
-| `get_pipeline_state` | Shaders are bound and a render target exists |
-| `get_bindings` | Expected resources are bound and not null |
-| `get_shader` returns empty | The stage may not be bound at this event; try a different stage or event |
-| `export_render_target` | The image is not unexpectedly all black or all white |
-| Each phase | Summarize what was found, ruled out, and what comes next |
+| `open_capture` 或 `capture_frame` | event 数量大于 0 |
+| `get_log` | 先调查 HIGH 级别消息 |
+| `list_draws` | draw 数量符合预期 |
+| `get_pipeline_state` | 已绑定 shader 且存在 render target |
+| `get_bindings` | 预期资源已绑定且不为 null |
+| `get_shader` 返回空 | 该 event 可能没有绑定此阶段；尝试其他 stage 或 event |
+| `export_render_target` | 图像没有异常地全黑或全白 |
+| 每个阶段 | 总结已发现、已排除的内容和下一步 |
 
-## Error Recovery
+## 错误恢复
 
-| Error | Recovery |
+| 错误 | 恢复方式 |
 |-------|----------|
-| `open_capture` file not found | Verify the path and ask for the correct file if needed |
-| `open_capture` invalid file | The file may be corrupted or not be an `.rdc`; ask for a new capture |
-| `capture_frame` app exits immediately | Check `cmdLine`, `workingDir`, and startup requirements |
-| `capture_frame` no frame captured | Increase `delayFrames` and verify the app actually renders to a window |
-| `get_shader` empty result | No shader is bound for that stage at this event; try another stage or event |
-| `get_pipeline_state` no render target | Some draws do not output to render targets; inspect draw flags |
-| `export_render_target` index out of range | Check how many render targets are bound and use a valid index from `0` to `7` |
-| `get_resource_info` invalid `ResourceId` | Call `list_resources` first to find a valid ID |
-| Any tool says no capture is open | Call `open_capture` first |
+| `open_capture` 找不到文件 | 确认路径，必要时向用户索取正确文件 |
+| `open_capture` 文件无效 | 文件可能损坏或不是 `.rdc`；要求重新抓帧 |
+| `capture_frame` 应用立即退出 | 检查 `cmdLine`、`workingDir` 和启动要求 |
+| `capture_frame` 没有抓到帧 | 增大 `delayFrames`，并确认应用确实渲染到窗口 |
+| `get_shader` 返回空 | 该 event 的此 stage 没有绑定 shader；尝试其他 stage 或 event |
+| `get_pipeline_state` 没有 render target | 部分 draw 不输出到 render target；检查 draw flags |
+| `export_render_target` 索引越界 | 检查绑定了多少 render target，并使用 `0` 到 `7` 的有效索引 |
+| `get_resource_info` 的 `ResourceId` 无效 | 先调用 `list_resources` 获取有效 ID |
+| 任意工具提示没有打开抓帧 | 先调用 `open_capture` |
 
-## When to Ask the User
+## 何时询问用户
 
-Ask before proceeding when:
-- Multiple draw calls could be the source of the problem.
-- The analysis is ambiguous and you need the user to confirm the most likely hypothesis.
-- The user's goal is still unclear after initial context gathering.
-- You found a likely root cause but need confirmation before narrowing further.
+出现以下情况时先询问再继续：
+- 多个 draw call 都可能是问题来源。
+- 分析存在歧义，需要用户确认最可能的假设。
+- 收集初始上下文后，用户目标仍不明确。
+- 已找到可能根因，但继续缩小范围前需要确认。
 
-Do not ask when:
-- The next diagnostic step is obvious.
-- More data will clearly narrow the problem.
-- Exporting an image or texture will give better evidence.
+以下情况不要询问：
+- 下一步诊断已经明确。
+- 采集更多数据能明显缩小问题范围。
+- 导出图像或纹理能提供更好的证据。
 
-## Tool Reference
+## 工具参考
 
-### Session
+### 会话
 
-| Tool | Purpose |
+| 工具 | 用途 |
 |------|---------|
-| `open_capture` | Load an `.rdc` file for analysis |
-| `capture_frame` | Launch the app, inject RenderDoc, capture a frame, and auto-open it |
+| `open_capture` | 加载 `.rdc` 文件进行分析 |
+| `capture_frame` | 启动应用、注入 RenderDoc、抓取一帧并自动打开 |
 
-### Navigation and Events
+### 导航和 Event
 
-| Tool | Purpose |
+| 工具 | 用途 |
 |------|---------|
-| `list_events` | List all events, including draws and non-draws |
-| `list_draws` | List draw calls only |
-| `goto_event` | Navigate to an event and update current state |
-| `get_draw_info` | Retrieve detailed information for one draw call |
+| `list_events` | 列出所有 event，包括 draw 和非 draw |
+| `list_draws` | 仅列出 draw call |
+| `goto_event` | 导航到 event 并更新当前状态 |
+| `get_draw_info` | 获取单个 draw call 的详细信息 |
 
-### Pipeline and Bindings
+### Pipeline 和绑定
 
-| Tool | Purpose |
+| 工具 | 用途 |
 |------|---------|
-| `get_pipeline_state` | Inspect bound shaders, render targets, depth state, and viewports |
-| `get_bindings` | Inspect constant buffers, textures, UAVs, and samplers |
+| `get_pipeline_state` | 检查绑定 shader、render target、depth state 和 viewport |
+| `get_bindings` | 检查常量缓冲区、纹理、UAV 和 sampler |
 
-### Shaders
+### Shader
 
-| Tool | Purpose |
+| 工具 | 用途 |
 |------|---------|
-| `get_shader` | Retrieve disassembly or reflection |
-| `list_shaders` | List unique shaders with usage counts |
-| `search_shaders` | Search across shader disassembly text |
+| `get_shader` | 获取反汇编或反射信息 |
+| `list_shaders` | 列出唯一 shader 及其使用次数 |
+| `search_shaders` | 搜索 shader 反汇编文本 |
 
-### Resources and Passes
+### 资源和 Pass
 
-| Tool | Purpose |
+| 工具 | 用途 |
 |------|---------|
-| `list_resources` | List GPU resources with optional filtering |
-| `get_resource_info` | Inspect a single resource in detail |
-| `list_passes` | List render passes with draw counts |
-| `get_pass_info` | List draws within one pass |
+| `list_resources` | 列出 GPU 资源，可附加过滤条件 |
+| `get_resource_info` | 详细检查单个资源 |
+| `list_passes` | 列出 render pass 及其 draw 数量 |
+| `get_pass_info` | 列出单个 pass 内的 draw |
 
-### Info and Diagnostics
+### 信息和诊断
 
-| Tool | Purpose |
+| 工具 | 用途 |
 |------|---------|
-| `get_capture_info` | Inspect API, GPU, driver, and event count |
-| `get_stats` | Inspect per-pass breakdowns, top draws, and large resources |
-| `get_log` | Inspect debug and validation messages |
+| `get_capture_info` | 检查 API、GPU、驱动和 event 数量 |
+| `get_stats` | 检查各 pass 明细、头部 draw 和大资源 |
+| `get_log` | 检查调试和校验消息 |
 
-### Export
+### 导出
 
-| Tool | Purpose |
+| 工具 | 用途 |
 |------|---------|
-| `export_render_target` | Export the current event's render target as PNG |
-| `export_texture` | Export a texture resource as PNG |
-| `export_buffer` | Export buffer data as a binary file |
+| `export_render_target` | 将当前 event 的 render target 导出为 PNG |
+| `export_texture` | 将纹理资源导出为 PNG |
+| `export_buffer` | 将 buffer 数据导出为二进制文件 |
 
-### Pixel & Debug
+### 像素和调试
 
-| Tool | Key Parameters | Purpose |
+| 工具 | 关键参数 | 用途 |
 |------|----------------|---------|
-| `pixel_history` | `x`, `y`, `eventId` (opt), `targetIndex` (opt) | Query which draws modified a pixel up to an event; includes shader output, post-blend value, and pass/fail status |
-| `pick_pixel` | `x`, `y`, `eventId` (opt), `targetIndex` (opt) | Read the RGBA value of a single pixel; returns float, uint, and int representations |
-| `debug_pixel` | `eventId`, `x`, `y`, `mode` (summary/trace), `primitive` (opt) | Debug the fragment shader at a pixel; summary returns inputs/outputs, trace adds step-by-step execution |
-| `debug_vertex` | `eventId`, `vertexId`, `mode` (summary/trace), `instance` (opt), `index` (opt), `view` (opt) | Debug the vertex shader for a specific vertex; summary or full trace |
-| `debug_thread` | `eventId`, `groupX/Y/Z`, `threadX/Y/Z`, `mode` (summary/trace) | Debug a compute shader thread at a workgroup and thread coordinate |
-| `get_texture_stats` | `resourceId`, `mip` (opt), `slice` (opt), `histogram` (opt), `eventId` (opt) | Get min/max pixel values and an optional 256-bucket RGBA histogram; useful for detecting NaN or all-zero textures |
+| `pixel_history` | `x`、`y`、`eventId`（可选）、`targetIndex`（可选） | 查询某个像素在指定 event 之前被哪些 draw 修改；包含 shader 输出、混合后数值和 pass/fail 状态 |
+| `pick_pixel` | `x`、`y`、`eventId`（可选）、`targetIndex`（可选） | 读取单个像素的 RGBA 值；返回 float、uint 和 int 表示 |
+| `debug_pixel` | `eventId`、`x`、`y`、`mode`（summary/trace）、`primitive`（可选） | 调试某个像素的片元 shader；summary 返回输入输出，trace 增加逐步执行 |
+| `debug_vertex` | `eventId`、`vertexId`、`mode`（summary/trace）、`instance`（可选）、`index`（可选）、`view`（可选） | 调试指定顶点的顶点 shader；支持 summary 或完整 trace |
+| `debug_thread` | `eventId`、`groupX/Y/Z`、`threadX/Y/Z`、`mode`（summary/trace） | 按 workgroup 和线程坐标调试 compute shader 线程 |
+| `get_texture_stats` | `resourceId`、`mip`（可选）、`slice`（可选）、`histogram`（可选）、`eventId`（可选） | 获取像素最小值和最大值，并可返回 256 桶 RGBA 直方图；适合检测 NaN 或全零纹理 |
 
-### Shader Hot-Editing
+### Shader 热编辑
 
-| Tool | Purpose |
+| 工具 | 用途 |
 |------|---------|
-| `shader_encodings` | List supported shader compilation encodings |
-| `shader_build` | Compile shader source code, returns a shaderId |
-| `shader_replace` | Replace shader at a given event/stage with a built shader |
-| `shader_restore` | Restore a single shader to its original |
-| `shader_restore_all` | Restore all replaced shaders and free resources |
+| `shader_encodings` | 列出支持的 shader 编译编码 |
+| `shader_build` | 编译 shader 源码并返回 shaderId |
+| `shader_replace` | 用已构建 shader 替换指定 event/stage 的 shader |
+| `shader_restore` | 将单个 shader 恢复为原始版本 |
+| `shader_restore_all` | 恢复所有已替换 shader 并释放资源 |
 
-### Extended Export
+### 扩展导出
 
-| Tool | Purpose |
+| 工具 | 用途 |
 |------|---------|
-| `export_mesh` | Export post-transform vertex data as OBJ or JSON |
-| `export_snapshot` | Export complete draw state (pipeline, shaders, and render targets) |
-| `get_resource_usage` | Query how a resource is used across all events |
+| `export_mesh` | 将变换后的顶点数据导出为 OBJ 或 JSON |
+| `export_snapshot` | 导出完整 draw 状态（pipeline、shader 和 render target） |
+| `get_resource_usage` | 查询资源在所有 event 中的使用方式 |
 
-### CI Assertions
+### CI 断言
 
-| Tool | Purpose |
+| 工具 | 用途 |
 |------|---------|
-| `assert_pixel` | Validate pixel RGBA value with configurable tolerance |
-| `assert_state` | Validate a pipeline state field against an expected value |
-| `assert_image` | Compare two PNG images pixel-by-pixel |
-| `assert_count` | Validate resource, draw, or event counts |
-| `assert_clean` | Validate no debug messages above a given severity |
+| `assert_pixel` | 以可配置容差校验像素 RGBA 值 |
+| `assert_state` | 校验 pipeline state 字段是否符合预期值 |
+| `assert_image` | 逐像素比较两份 PNG |
+| `assert_count` | 校验资源、draw 或 event 数量 |
+| `assert_clean` | 校验没有超过指定严重级别的调试消息 |
 
-### Diff / Comparison
+### Diff / 对比
 
-| Tool | Key Parameters | Purpose |
+| 工具 | 关键参数 | 用途 |
 |------|----------------|---------|
-| `diff_open` | `captureA`, `captureB` | Open two captures for side-by-side comparison |
-| `diff_close` | — | Close the diff session and free resources |
-| `diff_summary` | — | High-level summary with multi-level checking; check `divergedAt` field |
-| `diff_draws` | — | Compare draw call sequences using LCS alignment; reports changed/added/removed draws |
-| `diff_resources` | — | Compare GPU resource lists between the two captures |
-| `diff_stats` | — | Compare per-pass statistics between the two captures |
-| `diff_pipeline` | `marker` | Compare pipeline state at a matched draw identified by marker path |
-| `diff_framebuffer` | `eidA`, `eidB`, `target` (opt), `threshold` (opt), `diffOutput` (opt) | Pixel-level render target comparison with optional diff image output |
+| `diff_open` | `captureA`、`captureB` | 打开两份抓帧进行并排对比 |
+| `diff_close` | — | 关闭 diff 会话并释放资源 |
+| `diff_summary` | — | 多级检查后的高层摘要；检查 `divergedAt` 字段 |
+| `diff_draws` | — | 使用 LCS 对齐比较 draw call 序列；报告变化、新增和删除的 draw |
+| `diff_resources` | — | 比较两份抓帧的 GPU 资源列表 |
+| `diff_stats` | — | 比较两份抓帧的逐 pass 统计 |
+| `diff_pipeline` | `marker` | 比较 marker path 标识的匹配 draw 的 pipeline state |
+| `diff_framebuffer` | `eidA`、`eidB`、`target`（可选）、`threshold`（可选）、`diffOutput`（可选） | 执行像素级 render target 对比，可输出差异图 |

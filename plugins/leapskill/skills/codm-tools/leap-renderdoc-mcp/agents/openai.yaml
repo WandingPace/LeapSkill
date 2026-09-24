@@ -1,7 +1,7 @@
 interface:
   display_name: "leap:leap-renderdoc-mcp"
-  short_description: "Analyze RenderDoc captures and debug GPU rendering issues"
-  default_prompt: "Use $renderdoc-mcp to inspect this RenderDoc capture and explain the rendering problem."
+  short_description: "分析 RenderDoc 抓帧并诊断 GPU 渲染问题"
+  default_prompt: "使用 $renderdoc-mcp 检查这份 RenderDoc 抓帧并解释渲染问题。"
 
 policy:
   allow_implicit_invocation: true

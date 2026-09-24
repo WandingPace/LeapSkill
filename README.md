@@ -7,8 +7,8 @@ LeapSkill 是我的个人 Codex 技能库：一套从想法、规格、实现、
 ## 当前内容
 
 - 1 个插件：`leapskill`（同时提供 Codex 与 Cursor marketplace 清单）
-- 53 个技能目录，按流程分组位于 `plugins/leapskill/skills/{requirements,specification,architecture,implementation,verification,support,learning,codm-tools}/`
-- 覆盖需求澄清、规格拆解、架构设计、实现测试、调试评审、教学交接、长文写作和 CODM 工具流
+- 55 个技能目录，按流程分组位于 `plugins/leapskill/skills/{requirements,specification,architecture,implementation,verification,support,learning,codm-tools}/`
+- 覆盖需求澄清、规格拆解、架构设计、实现测试、调试评审、教学交接、长文写作和 CODM 工具流（含 Shader 关键字审计与 SVN diff 复核）
 - 正文与界面文案已中文化
 - 保留技能的 kebab-case 名称、脚本和配置结构
 
@@ -41,7 +41,7 @@ if (Test-Path $dst) { Remove-Item $dst -Recurse -Force }
 Copy-Item "I:\TencentGit\LeapSkill\plugins\leapskill" $dst -Recurse
 ```
 
-然后 `Developer: Reload Window`，打开 Customize，确认 `LeapSkill` 及其技能已加载。聊天里可用 `/skill-conductor`、`/tdd`、`/research` 显式调用。
+然后 `Developer: Reload Window`，打开 Customize，确认 `LeapSkill` 及其技能已加载。聊天里可用 `/show-me`、`/skill-conductor`、`/tdd`、`/research` 显式调用。
 
 ## 安装到 Codex
 
@@ -52,7 +52,7 @@ codex plugin marketplace add /path/to/LeapSkill
 codex plugin add leapskill@leapskill
 ```
 
-安装后开启新对话即可使用。可以显式调用，例如 `$skill-conductor`、`$tdd`、`$research`；也可能根据任务描述被 Codex 自动选中。
+安装后开启新对话即可使用。可以显式调用，例如 `$show-me`、`$skill-conductor`、`$tdd`、`$research`；也可能根据任务描述被 Codex 自动选中。`show-me` 仅支持显式调用，用于把当前主题解释为紧凑图表、代码形态草图、diff 或聚焦的 HTML 产物。
 
 ## 翻译与改造约定
 
@@ -72,3 +72,4 @@ rg '^description: "' plugins/leapskill/skills --glob 'SKILL.md'
 ```
 
 本地开发路径：`/Users/liuweiping/MyProject/LeapSkill`
+

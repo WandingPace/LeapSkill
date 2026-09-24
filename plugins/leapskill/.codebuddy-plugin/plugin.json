@@ -46,6 +46,7 @@
     "./skills/implementation/tdd",
     "./skills/learning/handoff",
     "./skills/learning/retro",
+    "./skills/learning/show-me",
     "./skills/learning/skill-conductor",
     "./skills/learning/teach",
     "./skills/learning/wait-what",
@@ -75,6 +76,7 @@
     "./skills/support/wizard",
     "./skills/verification/code-review",
     "./skills/verification/diagnosing-bugs",
-    "./skills/verification/resolving-merge-conflicts"
+    "./skills/verification/resolving-merge-conflicts",
+    "./skills/codm-tools/leap-shader-keyword-audit"
   ]
 }

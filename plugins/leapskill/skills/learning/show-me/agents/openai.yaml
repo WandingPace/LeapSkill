@@ -1,0 +1,5 @@
+interface:
+  display_name: "Show Me"
+  short_description: "用紧凑图表、代码草图和 HTML 直观解释"
+policy:
+  allow_implicit_invocation: false

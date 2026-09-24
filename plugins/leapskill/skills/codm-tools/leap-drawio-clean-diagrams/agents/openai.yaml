@@ -1,4 +1,4 @@
 interface:
   display_name: "leap:leap-drawio-clean-diagrams"
-  short_description: "Generate readable draw.io class, flow, and sequence diagrams."
-  default_prompt: "Create a clean draw.io class diagram, flowchart, and sequence diagram from this system."
+  short_description: "生成清晰易读的 draw.io 图表"
+  default_prompt: "根据该系统创建清晰易读的 draw.io 类图、流程图和时序图。"

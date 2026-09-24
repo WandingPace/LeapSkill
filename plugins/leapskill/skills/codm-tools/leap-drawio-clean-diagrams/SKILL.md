@@ -1,84 +1,62 @@
 ---
 name: leap-drawio-clean-diagrams
-description: Use when creating, editing, reviewing, previewing, or saving draw.io / diagrams.net class diagrams, flowcharts, sequence diagrams, architecture diagrams, or .drawio XML through mcp__drawio and the result must be readable, well laid out, and easy for humans to understand.
+description: "用于通过 mcp__drawio 创建、编辑、预览、审查或保存 draw.io/diagrams.net 类图、流程图、时序图和架构图，并要求版面清晰易读。不用于纯文本生成 .drawio XML、普通文档排版或与图表无关的 Mermaid 输出。"
 ---
 
-# draw.io Clean Diagrams
+# draw.io 清晰图表
 
-## Core principle
+## 核心原则
 
-Model the diagram as a visual system, not as XML syntax. Before writing any
-`mxCell`, decide the diagram's lanes, layers, reading direction, and edge
-routes. Then generate XML that preserves that human-readable structure.
+把图表建模为视觉系统，而不是 XML 语法。写任何 `mxCell` 前，先确定图表的分栏、分层、阅读方向和连线路径，再生成能保留这种人类可读结构的 XML。
 
-For `mcp__drawio.open_drawio_xml`, use `routing="libavoid"` whenever edges
-would cross boxes or multiple connectors converge in a dense area.
+调用 `mcp__drawio.open_drawio_xml` 时，只要连线会穿过方框，或密集区域有多条连接线汇聚，就使用 `routing="libavoid"`。
 
-## Workflow
+## 工作流
 
-1. Decide the reading direction:
-   - **Flowchart:** top-to-bottom main path, labels on branch exits.
-   - **Class diagram:** left-to-right dependency flow, inheritance parents on
-     the top layer, aggregates/compositions kept near their owners.
-   - **Sequence diagram:** left-to-right participants in first-appearance
-     order, messages strictly top-to-bottom.
-2. Reduce the model before drawing:
-   - Show only classes that explain ownership, inheritance, or data flow.
-   - Show only fields/methods that distinguish the class's responsibility.
-   - Collapse boilerplate accessors into one line such as
-     `Getters/Setters for config`.
-3. Pick one layout pattern from `references/layout-patterns.md` and keep all
-   nodes on its grid. Do not mix free placement, swimlanes, and table grids in
-   one page.
-4. Apply the matching construction rules in `references/layout-patterns.md`.
-5. Build one `<mxGraphModel>` per page. For multiple diagrams, use one named
-   page per diagram rather than merging unrelated views.
-6. Run the final checklist in `references/layout-patterns.md` before presenting
-   or saving the file.
+1. 确定阅读方向：
+   - **流程图：** 主路径从上到下，分支出口带标签。
+   - **类图：** 依赖关系从左到右，继承父类放在顶层，聚合或组合关系靠近拥有者。
+   - **时序图：** 参与者按首次出现顺序从左到右排列，消息严格从上到下单向排列。
+2. 画图前先精简模型：
+   - 只展示能说明所有权、继承或数据流的类。
+   - 只展示能区分类职责的字段和方法。
+   - 把样板访问器合并成一行，例如 `Getters/Setters for config`。
+3. 从 `references/layout-patterns.md` 选择一种布局模式，并让所有节点都对齐其网格。不要在同一页面混用自由摆放、泳道和表格网格。
+4. 应用 `references/layout-patterns.md` 中对应的构造规则。
+5. 每页生成一个 `<mxGraphModel>`。有多张图时，为每张图使用命名页面，不要把无关视图合并到同一页。
+6. 展示或保存文件前，执行 `references/layout-patterns.md` 的最终检查清单。
 
-## Tool routing
+## 工具路由
 
-- **Required tool:** use the `mcp__drawio` namespace for draw.io operations;
-  do not edit diagram files only as raw text or merely return XML.
-- **Create / preview:** call `mcp__drawio.open_drawio_xml`; add
-  `routing="libavoid"` for dense hand-placed diagrams.
-- **Edit existing files:** first call `mcp__drawio.list_pages`, then read the
-  target with `mcp__drawio.get_page`; produce the revised XML and write it back
-  with `mcp__drawio.set_page`. Re-read the page after writing when the edit is
-  structural.
-- **Create a local multi-page `.drawio` file:** create the file with
-  `apply_patch`, then use the MCP page APIs above for subsequent reads and
-  edits. Never rewrite the whole multi-page file for one page-level edit.
-- **Mermaid exception:** use `mcp__drawio.open_drawio_mermaid` only for a
-  simple graph under roughly 12 nodes with no custom layout requirements.
-- **Multi-page output:** use short page names: `Class`, `Flow`, `Sequence`,
-  `Architecture`.
+- **必需工具：** draw.io 操作必须使用 `mcp__drawio` 命名空间；不要只把图表文件当原始文本编辑，也不要只返回 XML。
+- **创建或预览：** 调用 `mcp__drawio.open_drawio_xml`；手工摆放的密集图表要加 `routing="libavoid"`。
+- **编辑已有文件：** 先调用 `mcp__drawio.list_pages`，再用 `mcp__drawio.get_page` 读取目标页；生成修订后的 XML，并通过 `mcp__drawio.set_page` 写回。结构性修改后要重新读取该页确认。
+- **创建本地多页 `.drawio` 文件：** 用 `apply_patch` 创建文件，后续读取和修改使用上述 MCP 页面 API。单个页面级编辑绝不能重写整个多页文件。
+- **Mermaid 例外：** 只有约 12 个节点以内、无需自定义布局的简单图，才使用 `mcp__drawio.open_drawio_mermaid`。
+- **多页输出：** 使用简短页面名：`Class`、`Flow`、`Sequence`、`Architecture`。
 
-Do not add XML comments to generated draw.io XML.
+不要在生成的 draw.io XML 中添加 XML 注释。
 
-## Readability contract
+## 可读性契约
 
-- Every node label is 1-6 words plus an optional concise detail line.
-- A label explains the concept, not the implementation.
-- An edge label is 1-3 words (`Yes`, `No`, `async`, `owns`, `calls`).
-- Color encodes one stable meaning per diagram; add a small legend when two or
-  more semantic colors are used.
-- All text fits without overlap at the target page size.
-- Keep at least 40px between unrelated boxes and 80px between semantic layers.
+- 每个节点标签为 1 到 6 个词，可附加一行简短说明。
+- 标签说明概念，不说明实现细节。
+- 连线标签为 1 到 3 个词（`Yes`、`No`、`async`、`owns`、`calls`）。
+- 同一张图中每种颜色只表达一个稳定含义；使用两种或更多语义颜色时添加小图例。
+- 所有文字在目标页面尺寸下都要完整显示且不重叠。
+- 无关方框之间至少保留 40px，语义层之间至少保留 80px。
 
-## Common mistakes
+## 常见错误
 
-| Symptom | Correction |
+| 现象 | 修正方式 |
 |---|---|
-| Boxes crowd one side | Rebalance columns and use the rigid grid |
-| Arrows cross node bodies | Use `routing="libavoid"` or split a hub node |
-| Inheritance edges zigzag | Put all parents on one top layer |
-| Sequence messages overlap | Keep a 48px vertical slot per message |
-| Class boxes become walls | Keep at most 6 fields plus 6 methods |
-| Diagram needs scrolling to follow | Split into multiple named pages |
+| 方框挤在一侧 | 重新平衡列，并严格使用网格 |
+| 箭头穿过节点主体 | 使用 `routing="libavoid"`，或拆分中心节点 |
+| 继承连线曲折 | 把所有父类放在同一顶层 |
+| 时序消息重叠 | 每条消息保留 48px 垂直空间 |
+| 类框变成文字墙 | 每个类最多保留 6 个字段和 6 个方法 |
+| 必须滚动才能看懂图 | 拆成多个命名页面 |
 
-## Reference
+## 参考
 
-Read `references/layout-patterns.md` for mandatory class, flow, sequence,
-swimlane, and architecture construction rules, including geometry grids and
-final checks.
+阅读 `references/layout-patterns.md`，获取类图、流程图、时序图、泳道图和架构图必须遵循的构造规则，包括几何网格和最终检查。

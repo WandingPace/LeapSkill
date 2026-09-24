@@ -1,4 +1,4 @@
 interface:
   display_name: "leap:leap-quickcmd-compose"
-  short_description: "Discover and run ordered QuickCmd workflows"
-  default_prompt: "Use $quickcmd-compose to close CODM, then fully update the project."
+  short_description: "发现并执行有序 QuickCmd 工作流"
+  default_prompt: "使用 $quickcmd-compose 依次关闭 CODM，然后完整更新项目。"

@@ -1,22 +1,22 @@
-# Commands
+# 命令
 
-All commands run from `G:\UnitySource`.
+所有命令都在 `G:\UnitySource` 下运行。
 
-## Main entry
+## 主入口
 
 ```powershell
 Tests\RenderValidation\Scripts\run-render-validation.ps1 [options]
 ```
 
-## List cases
+## 列出 Case
 
 ```powershell
 Tests\RenderValidation\Scripts\run-render-validation.ps1 -Command list
 ```
 
-Validates Case JSON and prints ID, platform, graphics API, and scene.
+校验 Case JSON，并打印 ID、平台、图形 API 和场景。
 
-## Build only
+## 仅构建
 
 ```powershell
 Tests\RenderValidation\Scripts\run-render-validation.ps1 `
@@ -25,9 +25,9 @@ Tests\RenderValidation\Scripts\run-render-validation.ps1 `
   -Output artifacts\RenderValidation\manual-build
 ```
 
-Builds one Player containing the graphics APIs configured by `graphicsApis`.
+构建一个包含 `graphicsApis` 所配置图形 API 的 Player。
 
-## Single-API run
+## 单 API 运行
 
 ```powershell
 Tests\RenderValidation\Scripts\run-render-validation.ps1 `
@@ -36,9 +36,9 @@ Tests\RenderValidation\Scripts\run-render-validation.ps1 `
   -Output artifacts\RenderValidation\single-api
 ```
 
-Uses the Case `graphicsApi` value. This is evidence capture, not a canonical-baseline test.
+使用 Case 的 `graphicsApi` 值。这是证据采集，不是标准基线测试。
 
-## Multi-API + switch matrix
+## 多 API 加开关矩阵
 
 ```powershell
 Tests\RenderValidation\Scripts\run-render-validation.ps1 `
@@ -51,17 +51,17 @@ Tests\RenderValidation\Scripts\run-render-validation.ps1 `
   -AfterValue true
 ```
 
-For every configured API, the Runner executes:
+Runner 会对每个已配置 API 依次执行：
 
-1. Editor/GameView Before UnityStats and screenshot.
-2. Player/RenderDoc Before capture.
-3. Editor/GameView After UnityStats and screenshot.
-4. Player/RenderDoc After capture.
-5. Before/After screenshot diff and HTML report.
+1. Editor/GameView Before 的 UnityStats 和截图。
+2. Player/RenderDoc Before 抓帧。
+3. Editor/GameView After 的 UnityStats 和截图。
+4. Player/RenderDoc After 抓帧。
+5. Before/After 截图差异和 HTML 报告。
 
-The output is `<output>/<case>/<api>/<before|after>/` plus `<output>/<case>/matrix-report.html`.
+输出目录为 `<output>/<case>/<api>/<before|after>/`，另加 `<output>/<case>/matrix-report.html`。
 
-## Regenerate matrix report
+## 重新生成矩阵报告
 
 ```powershell
 Tests\RenderValidation\Scripts\run-render-validation.ps1 `
@@ -70,9 +70,9 @@ Tests\RenderValidation\Scripts\run-render-validation.ps1 `
   -Run artifacts\RenderValidation\api-switch-matrix\material-mesh-setpass
 ```
 
-Use after changing `Tests\RenderValidation\Report\RenderValidationComparisonTemplate.html` or `Runner/MatrixReportWriter.cs`; this replays RenderDoc statistics but does not rebuild or recapture.
+修改 `Tests\RenderValidation\Report\RenderValidationComparisonTemplate.html` 或 `Runner/MatrixReportWriter.cs` 后使用。该命令会重新处理 RenderDoc 统计，但不会重新构建或抓帧。
 
-## Static switch A/B report
+## 静态开关 A/B 报告
 
 ```powershell
 Tests\RenderValidation\Scripts\run-render-validation.ps1 `
@@ -85,9 +85,9 @@ Tests\RenderValidation\Scripts\run-render-validation.ps1 `
   -AfterValue true
 ```
 
-Generates `comparison-report.html` with one draggable Before/After view.
+生成包含一个可拖动 Before/After 视图的 `comparison-report.html`。
 
-## Analyze an existing capture
+## 分析已有抓帧
 
 ```powershell
 Tests\RenderValidation\Scripts\run-render-validation.ps1 `
@@ -97,9 +97,9 @@ Tests\RenderValidation\Scripts\run-render-validation.ps1 `
   -Output G:\path\analysis
 ```
 
-## Engine support builds
+## 引擎支持产物构建
 
-Only run these when the corresponding support output is missing or stale:
+只有对应的支持产物缺失或过旧时才运行：
 
 ```powershell
 .\BuildWindowsEditor.Bee.bat

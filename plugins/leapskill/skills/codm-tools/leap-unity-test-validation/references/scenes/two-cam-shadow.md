@@ -19,7 +19,7 @@
 & G:\UnitySource\Tests\TestValidation\Scripts\run-test-validation.ps1 `
   -EditorPath "<当前工作区>\build\WindowsEditor\Unity.exe" `
   -Mode EditorPlay -TestScene Assets/Generated/TwoCamShadowValidation.unity `
-  -Frames 140 -PerObjectShadow on -SrpBatch:$false -NoRenderDoc -Debugger Cdb -TimeoutSeconds 600
+  -Frames 140 -PerObjectShadow on -SrpBatch:$false -Debugger Cdb -TimeoutSeconds 600
 ```
 
 （`-EditorPath` 取值见 `../workspace-resolution.md`。）

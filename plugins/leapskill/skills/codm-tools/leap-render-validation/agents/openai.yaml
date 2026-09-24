@@ -1,4 +1,4 @@
 interface:
   display_name: "leap:leap-render-validation"
-  short_description: "Run multi-API and static-switch rendering comparisons."
-  default_prompt: "Run RenderValidation across graphics APIs and before/after switch values, then produce the HTML report."
+  short_description: "运行多 API 与静态开关渲染对比验证"
+  default_prompt: "运行 RenderValidation，覆盖图形 API 与静态开关前后值，并生成 HTML 报告。"

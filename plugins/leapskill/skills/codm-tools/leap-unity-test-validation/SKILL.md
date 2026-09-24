@@ -1,11 +1,11 @@
 ---
 name: leap-unity-test-validation
-description: How-to for the shared G:/UnitySource/Tests/TestValidation harness (result.json, report.html, CDB). Covers workspace-aware Unity.exe selection, run/report flow, and per-scene routing. Do NOT use for engine build/compile diagnosis (use cgame-engine build-verify) or for locating engine call chains (use cgame-engine code-discovery); this skill runs the validation harness only.
+description: "用于运行共享的 G:/UnitySource/Tests/TestValidation 测试框架，执行 Editor PlayMode 验证、按场景路由，并产出 result.json、report.html 和 CDB 证据。不用于引擎编译问题诊断、代码调用链定位或 RenderValidation 的多 API 渲染矩阵。"
 ---
 
-# Unity Test Validation
+# Unity Test Validation（Editor PlayMode 测试框架）
 
-This skill is the harness how-to. For TDD RED/GREEN and plan verification in `G:\UnitySource`, follow `superpowers:test-driven-development` **Workspace Test Selection** (Debug Editor, then this script). Do not add a second test entry here.
+本 skill 说明如何使用该测试框架。在 `G:\UnitySource` 中做 TDD RED/GREEN 或计划验证时，先遵循 `superpowers:test-driven-development` 的 **Workspace Test Selection**（先编 Debug Editor，再运行本脚本）。不要在这里增加第二套测试入口。
 
 ## 飞行前检查：先选定工作区的 Unity.exe
 
@@ -28,13 +28,13 @@ This skill is the harness how-to. For TDD RED/GREEN and plan verification in `G:
 | 场景 (-CreateScene) | 流程文件 |
 |---|---|
 | `twoCamShadow` | [references/scenes/two-cam-shadow.md](references/scenes/two-cam-shadow.md) |
-| `srpBatcher` / `hism` / `hismBatch` / `addLightShadow` | 见下方「Result Contract」「Adding Another Switch」公共契约（暂无专属文件，需要时按 two-cam-shadow.md 模板补） |
+| `srpBatcher` / `hism` / `hismBatch` / `addLightShadow` | 见下方「结果契约」「新增其他开关」公共契约（暂无专属文件，需要时按 two-cam-shadow.md 模板补） |
 
-The current harness has one implemented switch example, `Graphics.enableSRPBatch`. Treat SRP as an example, not as the workflow boundary. Future switch tests should reuse the same phases, result contract, report, and CDB diagnostics.
+当前框架只实现了一个开关示例：`Graphics.enableSRPBatch`。SRP 只是示例，不是流程边界。后续开关测试应复用相同的测试阶段、结果契约、报告和 CDB 诊断。
 
-## Required Sequence
+## 必需步骤
 
-Same two steps as TDD Workspace Test Selection. Missing the Debug build does not count. Do not use `perl build.pl test native`、`-runNativeTests`、`BuildWindowsEditor.Bee.bat`、`perl bee.pl EditorApp`、`WindowsStandaloneSupport`、`render-validation`。
+与 TDD Workspace Test Selection 一样，必须执行两步。缺少 Debug Editor 构建的验证无效。不要使用 `perl build.pl test native`、`-runNativeTests`、`BuildWindowsEditor.Bee.bat`、`perl bee.pl EditorApp`、`WindowsStandaloneSupport` 或 `render-validation`。
 
 ```powershell
 # 1. 先编 Debug Editor（产物 G:\UnitySource\build\WindowsEditor\Unity.exe）
@@ -65,30 +65,30 @@ G:\UnitySource\BuildWindowsEditor.Bee.Debug.bat
   -Debugger Cdb
 ```
 
-Parameters:
+参数：
 
-- `-CreateScene <hism|hismBatch|srpBatcher>` generates a validation scene.
-- `-TestScene Assets/<scene>.unity` loads an existing scene; it is mutually exclusive with `-CreateScene`.
-- `-SrpBatch:$false|$true` requests the current example switch, `Graphics.enableSRPBatch`.
-- `-Debugger Cdb` launches Unity under Windows CDB and captures native exceptions. Always include it for EditorPlay runs in this repository; each run follows a fresh Debug Editor build and must retain native-crash evidence even when the expected result is PASS.
-- `-OutputDirectory` and `-ReportDirectory` override the default evidence/report locations.
+- `-CreateScene <hism|hismBatch|srpBatcher>`：生成验证场景。
+- `-TestScene Assets/<scene>.unity`：加载已有场景；与 `-CreateScene` 互斥。
+- `-SrpBatch:$false|$true`：请求当前示例开关 `Graphics.enableSRPBatch`。
+- `-Debugger Cdb`：在 Windows CDB 下启动 Unity 并捕获原生异常。本仓库的所有 EditorPlay 运行都必须带上该参数；每次运行都要先做一次新的 Debug Editor 构建，即使预期结果是 PASS，也必须保留原生崩溃证据。
+- `-OutputDirectory` 和 `-ReportDirectory`：覆盖默认的证据和报告目录。
 
-Do not use `-Mode Player` unless the user explicitly asks. Default is EditorPlay after the Debug Editor build.
+除非用户明确要求，否则不要使用 `-Mode Player`。默认流程是在 Debug Editor 构建后运行 EditorPlay。
 
-## Adding Another Switch
+## 新增其他开关
 
-Follow the same contract when adding a new graphics/logic switch:
+新增图形或逻辑开关时，遵循相同契约：
 
-1. Give it explicit script parameters rather than overloading an existing switch's meaning.
-2. Pass it through Unity command-line arguments to `TestValidationRunner`.
-3. Apply it immediately before PlayMode and verify the actual value equals the requested value after entering PlayMode.
-4. Store both requested and actual values in `result.json`.
-5. Include both values in the HTML report.
-6. Keep scene-specific assertions independent from switch state.
-7. Always launch with `-Debugger Cdb`; do not create a separate debugger workflow.
-8. Report a switch as validated only when both requested state and actual state match and the run reaches the completion sentinel.
+1. 为新开关增加明确的脚本参数，不要复用并改变已有开关的含义。
+2. 通过 Unity 命令行参数传给 `TestValidationRunner`。
+3. 在进入 PlayMode 前立即应用开关，并在进入 PlayMode 后确认实际值等于请求值。
+4. 在 `result.json` 中记录请求值和实际值。
+5. 在 HTML 报告中同时展示两个值。
+6. 场景专属断言不得依赖开关状态。
+7. 始终使用 `-Debugger Cdb` 启动，不要再建立一套独立调试流程。
+8. 只有请求状态与实际状态一致，并且运行到达完成 sentinel 时，才能把开关报告为已验证。
 
-Do not hard-code a new switch as the default. Keep `None` or the current safe baseline as the default until the new path is validated.
+不要把新开关硬编码为默认值。在新路径通过验证前，默认值保持 `None` 或当前安全基线。
 
 ## 参数调整脚本约定
 
@@ -99,58 +99,58 @@ Do not hard-code a new switch as the default. Keep `None` or the current safe ba
 
 两种脚本都遵守同样的契约：参数值通过 `TestValidationRunner` 的命令行参数传入，脚本内不写死默认值以外的业务值；`result.json` 同时记录 requested 与 actual；脚本只在测试场景内存在，不要打进业务工程。
 
-## Output Layout
+## 输出目录
 
-Generated scenes write to（测试工程内的绝对路径）:
+生成场景的输出目录（测试工程内的绝对路径）：
 
 ```text
 G:\UnitySource\Tests\TestValidation\Report\TestValidation\Generated-<scene-kind>\<timestamp>\
 ```
 
-Loaded scenes write to:
+加载已有场景的输出目录：
 
 ```text
 G:\UnitySource\Tests\TestValidation\Report\TestValidation\Scene-<relative-name-without-extension>\<timestamp>\
 ```
 
-Example: `-TestScene Assets/test.unity` writes under `Scene-test`.
+示例：`-TestScene Assets/test.unity` 会写入 `Scene-test` 下的目录。
 
-Each run directory contains:
+每次运行的目录包含：
 
 - `result.json`
-- `screenshot.png` when rendering reaches capture
-- `capture.rdc` (RenderDoc multi-frame capture, written at Unity exit; copied next to `report.html`, and linked from the report Evidence list)
+- 渲染执行到截图阶段时的 `screenshot.png`
+- `capture.rdc`（RenderDoc 多帧抓帧，在 Unity 退出时写入；会复制到 `report.html` 同级目录，并从报告的证据列表链接）
 - `editor.log`
-- `unity.log` in Player mode
-- `cdb.log` in CDB mode
+- Player 模式下的 `unity.log`
+- CDB 模式下的 `cdb.log`
 - `report.html`
 
-## Validation Flow
+## 验证流程
 
-1. Build Debug Editor with `G:\UnitySource\BuildWindowsEditor.Bee.Debug.bat`. Then resolve `G:\UnitySource\build\WindowsEditor\Unity.exe` and the test project `G:\UnitySource\Tests\TestValidation`.
-2. Generate or load the requested scene.
-3. Apply requested test settings. The current example applies `Graphics.enableSRPBatch`.
-4. In EditorPlay mode, start batch Unity without `-quit`, run `TestValidationRunner.RunEditor`, and enter PlayMode.
-5. Run a state machine through `entering-play-mode` -> `waiting-for-scene` -> `running` -> `waiting-for-screenshot` -> `complete`.
-6. After the requested frame count, show `UnityEditor.GameView`, invoke its private `RepaintImmediately()` method, read `UnityEditor.UnityStats`, then render to a temporary `RenderTexture` and capture the back buffer.
-7. Write `result.json`, `screenshot.png`, and a completion sentinel to the Editor log.
-8. The PowerShell script verifies result pass state, requested-vs-actual switch state, artifacts, and completion sentinel.
-9. Write `report.html` for success and failure paths, including process crashes and timeouts.
+1. 使用 `G:\UnitySource\BuildWindowsEditor.Bee.Debug.bat` 构建 Debug Editor，然后确认 `G:\UnitySource\build\WindowsEditor\Unity.exe` 和测试工程 `G:\UnitySource\Tests\TestValidation` 可用。
+2. 生成或加载请求的场景。
+3. 应用请求的测试设置。当前示例应用 `Graphics.enableSRPBatch`。
+4. 在 EditorPlay 模式下，以批处理方式启动 Unity，但不传 `-quit`；运行 `TestValidationRunner.RunEditor` 并进入 PlayMode。
+5. 状态依次经过 `entering-play-mode`、`waiting-for-scene`、`running`、`waiting-for-screenshot` 和 `complete`。
+6. 达到请求帧数后，显示 `UnityEditor.GameView`，调用其私有方法 `RepaintImmediately()`，读取 `UnityEditor.UnityStats`，再渲染到临时 `RenderTexture` 并捕获后台缓冲区。
+7. 写入 `result.json`、`screenshot.png`，并向 Editor 日志写入完成 sentinel。
+8. PowerShell 脚本校验结果是否为通过、请求开关值与实际值是否一致、产物是否存在，以及完成 sentinel 是否存在。
+9. 无论成功还是失败，包括进程崩溃和超时，都写入 `report.html`。
 
-## Result Contract
+## 结果契约
 
-Reliable evidence:
+可靠证据：
 
 - `passed`
-- requested and actual values for every switch under test
+- 每个被测开关的请求值和实际值
 - `validationMode`
 - `requestedFrames` and `framesCompleted`
 - `rendererCount`
 - `foregroundPixelCount`
 - `expectedColorPixelCount`
-- screenshot and Editor log
+- 截图和 Editor 日志
 
-Editor UnityStats fields:
+Editor `UnityStats` 字段：
 
 - `drawCalls`
 - `batches`
@@ -162,29 +162,29 @@ Editor UnityStats fields:
 - `frameTime`
 - `renderTime`
 
-These counts are meaningful only when `renderStatsAvailable` is true. If core counters stay zero, report them as `N/A` rather than measured zero values.
+仅当 `renderStatsAvailable` 为 true 时，这些统计值才有意义。如果核心计数器始终为 0，应报告为 `N/A`，不能把它当作实测零值。
 
-The generated SRP Batcher example scene contains 24 shared-material cubes and 8 distinct-material spheres. Require at least 32 renderers and at least 2000 expected blue/warm pixels. Other generated scenes should define their own scene-specific contracts. Arbitrary loaded scenes use generic health checks only.
+生成的 SRP Batcher 示例场景包含 24 个共享材质立方体和 8 个独立材质球体。要求至少有 32 个 renderer，并且至少 2000 个预期蓝色或暖色像素。其他生成场景应定义自己的场景专属契约。任意加载的场景只使用通用健康检查。
 
-## HTML Report
+## HTML 报告
 
-`report.html` is the primary human-facing result. It contains:
+`report.html` 是主要的人类可读结果，包含：
 
-- PASS/FAIL badge and process exit code
-- scene, mode, requested/actual switch values
+- PASS/FAIL 标记和进程退出码
+- 场景、模式、开关请求值和实际值
 - **Comparison Evidence** section（对比验证输出契约，见下文）
-- frame and renderer counts
-- foreground and expected-color pixel counts
-- UnityStats table
-- screenshot preview
-- links to raw evidence
-- failure reason
-- Editor/Player log tails
-- CDB analysis and CDB log tail when CDB is enabled
+- 帧数和 renderer 数量
+- 前景像素数和预期颜色像素数
+- `UnityStats` 表格
+- 截图预览
+- 原始证据链接
+- 失败原因
+- Editor/Player 日志尾部
+- 启用 CDB 时的 CDB 分析和 CDB 日志尾部
 
-Report the HTML path in the final response. A report is not a pass signal by itself; confirm `result.json`, sentinel, and artifacts for successful runs.
+最终回复必须给出 HTML 路径。报告本身不是通过信号；成功运行还必须确认 `result.json`、sentinel 和产物。
 
-When the current engineering task tracks state in a `status.md` (for example under `Docs\superpowers\plans\...`), record the generated report/evidence directory there after completed validation runs. Use one clickable absolute-path Markdown link per run, preferably directly to `report.html` (or `cdb.log`/`result.json` when relevant), with a short result summary. Do not use backtick-only relative directories or bare Windows paths as the only representation. Keep failure diagnostics with their run directory.
+如果当前工程任务使用 `status.md` 跟踪状态（例如位于 `Docs\superpowers\plans\...`），应在每次验证完成后把生成的报告和证据目录记录到该文件。每次运行使用一个可点击的绝对路径 Markdown 链接，优先直接链接 `report.html`（需要时链接 `cdb.log` 或 `result.json`），并附一行简短结果摘要。不要把反引号包裹的相对目录或裸 Windows 路径作为唯一表示。失败诊断应与对应运行目录放在一起。
 
 ## 对比验证输出契约
 
@@ -201,31 +201,31 @@ When the current engineering task tracks state in a `status.md` (for example und
 4. 对比差异的达标阈值由各场景自己的断言定义（如阴影探针 ≥100 像素）；`verdict=failed` 必须同时让场景断言失败，不能只改报告展示。
 5. 滑窗对比的 A/B 两图必须同视点同分辨率才有透视意义；截图与数值必须来自同一次渲染（不要分开存图与读数，手动 `Render()` 可见性滞后一帧，分开采集会错位）。
 
-## CDB Native Debugging
+## CDB 原生调试
 
-Always use `-Debugger Cdb` for EditorPlay in this repository, not only after a failure. A successful run still writes an empty-of-exception `cdb.log`, which is evidence that the native process exited without an AV, stack overflow, or divide-by-zero. If CDB is unavailable, stop and report that CDB is required; do not silently downgrade the run.
+本仓库的 EditorPlay 始终使用 `-Debugger Cdb`，不能只在失败后启用。成功运行也会写出不含异常的 `cdb.log`，用于证明原生进程未发生访问违规、栈溢出或除零。如果 CDB 不可用，应停止并报告 CDB 是必需条件，不能静默降低运行标准。
 
-CDB mode:
+CDB 模式会执行：
 
-1. Locates Windows Debuggers `cdb.exe`.
-2. Starts Unity as the debuggee.
-3. Loads line information and Unity symbols.
-4. Enables automatic handlers for access violation, stack overflow, and divide-by-zero.
-5. On exception, runs `!analyze -v`, switches to the exception context, dumps the current and all-thread stacks, and records Unity module information.
-6. Writes `cdb.log`, exits the debuggee after evidence capture, and surfaces the exception plus symbolized Unity frames in `report.html`.
+1. 定位 Windows Debuggers 的 `cdb.exe`。
+2. 将 Unity 作为被调试进程启动。
+3. 加载行号信息和 Unity 符号。
+4. 为访问违规、栈溢出和除零启用自动处理器。
+5. 发生异常时运行 `!analyze -v`，切换到异常上下文，转储当前线程和所有线程栈，并记录 Unity 模块信息。
+6. 写出 `cdb.log`，在采集证据后退出被调试进程，并在 `report.html` 中展示异常和已符号化的 Unity 调用栈。
 
-Do not infer a root cause solely from the outer process exit code. Read `cdb.log` and report the actual native exception and first meaningful Unity frames. Preserve the raw CDB log.
+不要只根据外层进程退出码推断根因。必须读取 `cdb.log`，报告实际原生异常和第一批有效的 Unity 栈帧，并保留原始 CDB 日志。
 
-The SRP ON example produced a native stack overflow `0xC00000FD` at `Renderer::FlattenMaterialsAndCustomPropBuffers` calling `Renderer::EnsureMaterialCacheUpdated`; do not reuse this as a generic conclusion. Each new run and switch must derive its finding from that run's CDB evidence.
+SRP ON 示例曾在 `Renderer::FlattenMaterialsAndCustomPropBuffers` 调用 `Renderer::EnsureMaterialCacheUpdated` 时产生原生栈溢出 `0xC00000FD`。不要把该结论复用为通用结论。每次新运行和每个新开关都必须根据本次运行的 CDB 证据得出结论。
 
-## Interpretation
+## 结果解读
 
 - Debug Editor 未编过或 `BuildWindowsEditor.Bee.Debug.bat` 失败时，不要跑 PlayMode，也不要用旧的 `Unity.exe` 冒充本次验证。
-- A baseline pass proves the harness can create/load the scene, enter PlayMode, run frames, render, and capture. It does not prove every switch works.
-- A switch failure with CDB evidence should be diagnosed from the native exception and stack, not treated as a test harness defect.
-- Missing completion sentinel, missing JSON/screenshot, or timeout means the run did not finish. Inspect Editor log, state file, and CDB log before changing engine code.
-- `Temp/UnityLockfile` or "another Unity instance is running" means the project is open elsewhere. Stop the other Editor and remove the lockfile before retrying.
-- Do not modify the harness merely because it correctly detects an engine defect.
+- 基线通过只证明测试框架能够创建或加载场景、进入 PlayMode、运行帧、渲染并截图，不证明每个开关都正常。
+- 有 CDB 证据的开关失败，应从原生异常和调用栈诊断，不能当作测试框架缺陷。
+- 缺少完成 sentinel、缺少 JSON、缺少截图或超时，说明本次运行没有完成。修改引擎代码前先检查 Editor 日志、状态文件和 CDB 日志。
+- 出现 `Temp/UnityLockfile` 或“another Unity instance is running”说明工程正在别处打开。停止另一个 Editor 并移除锁文件后再重试。
+- 测试框架正确检测到引擎缺陷时，不要为了绕过缺陷而修改框架。
 
 ## 报告自动打开（默认行为）
 
@@ -233,6 +233,6 @@ The SRP ON example produced a native stack overflow `0xC00000FD` at `Renderer::F
 
 1. 验证命令执行完后，报告已在浏览器弹出——最终回复里仍要给出 report.html 的可点击 Markdown 链接，但不重复调用 `Start-Process` 打开。
 2. 若用户明确说"不要自动打开"，可传 `-NoOpenReport` 跳过。
-3. 环境干扰（如 `Temp/UnityLockfile`）导致未生成报告时，脚本不会打开任何东西；按 Interpretation 清理后重跑。
+3. 环境干扰（如 `Temp/UnityLockfile`）导致未生成报告时，脚本不会打开任何东西；按「结果解读」清理后重跑。
 
-Keep responses in Chinese by default. Preserve generated artifacts for diagnosis unless the user asks for cleanup, and never commit `Library/`, `Temp/`, `Report/`, `TestResults*/`, or generated scene output.
+回复默认使用中文。除非用户要求清理，否则保留生成的诊断产物；永远不要提交 `Library/`、`Temp/`、`Report/`、`TestResults*/` 或生成的场景输出。

@@ -1,6 +1,6 @@
 # RESOURCES.md 格式
 
-`RESOURCES.md` 是这个主题的可信资源清单。讲解所需的知识应从这里取，不靠模型自己猜。经验判断来自这里列出的社区。
+`RESOURCES.md` 固定放在当前项目的 `Docs/Teach/<topic-slug>/RESOURCES.md`，是这个主题的可信资源清单。讲解所需的知识应从这里取，不靠模型自己猜。经验判断来自这里列出的社区。
 
 ## 结构
 

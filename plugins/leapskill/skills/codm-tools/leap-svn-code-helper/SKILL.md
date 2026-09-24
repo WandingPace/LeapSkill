@@ -1,6 +1,6 @@
 ---
 name: leap-svn-code-helper
-description: "CODM SVN 工作流：提交/拉取、主线↔分支覆盖同步、关键字溯源、C#转XLua热修复、外链资源更新。触发：svn提交、svn更新、分支合并、谁提交了、hotfix.lua"
+description: "用于 CODM SVN 提交、更新、主线与分支文件覆盖同步、关键字和修订溯源、外链资源更新，以及 C# 转 XLua 热修复协助。不负责上传或投递 Hotfix，也不替代专门的 XLua 语义核对。"
 
 ---
 
@@ -255,11 +255,11 @@ name: leap-svn-code-helper
 description: .
 ---
 
-## Purpose
+## 用途
 
-Convert the current SVN user's latest remote C# commit in a CODM `Client` repository into a reviewed XLua hotfix script, and write the final output into `Client/Export/LuaHotFixArchive/Automatic/<latest-version>/#<id>/TestHotFix.lua`.
+把 CODM `Client` 仓库中当前 SVN 用户最近一次远端 C# 提交，转成经过审查的 XLua 热修复脚本，并把最终产物写入 `Client/Export/LuaHotFixArchive/Automatic/<latest-version>/#<id>/TestHotFix.lua`。
 
-## Trigger examples
+## 触发示例
 
 - `@command://hotfix.lua 99`
 - `/hotfix.lua 99`
@@ -276,46 +276,46 @@ Convert the current SVN user's latest remote C# commit in a CODM `Client` reposi
    - 在该版本目录下选可用的 `#<id>` 编号目录（用户指定的 id 已被占用时，明确报告冲突并让用户确认是否换号，不静默覆盖）；
    - 目录命名遵循该版本目录内的现有风格（如 `#35` 或 `#35_0621`）。
 
-## Required operating procedure
+## 必须执行的操作步骤
 
-1. Parse the numeric hotfix id from the request. Ask for the id only if it is truly missing.
-2. Read `references/hotfix_workflow.md` before starting the conversion flow.
-3. Read `references/csharp_to_lua_rules.md` before writing Lua code.
-4. Determine the real `Client` directory using the workflow reference. Prefer the `QATxt` anchor rule when the workspace follows the CODM layout.
-5. Query the current SVN username, resolve the remote SVN URL, and search the **remote** log with `--search <username>`.
-6. Use the matching remote C# commit as the only source commit. Do not silently switch to another user's commit.
-7. Fetch both `svn diff` and `svn cat` for every changed `.cs` file. Use C# source as the single source of truth.
-8. Search `Client/Export/LuaHotFixArchive/Automatic` for previous Lua hotfix examples, but use them only for style and namespace confirmation.
-9. Generate XLua hotfix code that preserves method names, signatures, execution order, and branch logic from C#.
-10. Add `CS.GameEngine.Log.PublishLog` logs on method entry, key branches, nil checks, important loops, and method exit.
-11. Write the final file only to `Client/Export/LuaHotFixArchive/Automatic/<latest-version>/#<id>/TestHotFix.lua`.
-12. Verify the written file and report revision, changed files, converted methods, output path, and any review risks.
+1. 从请求中解析数字热修复编号。只有确实缺少编号时才询问。
+2. 开始转换流程前读取 `references/hotfix_workflow.md`。
+3. 编写 Lua 代码前读取 `references/csharp_to_lua_rules.md`。
+4. 按工作流 reference 确定真实的 `Client` 目录。工作区符合 CODM 布局时，优先使用 `QATxt` 锚点规则。
+5. 查询当前 SVN 用户名，解析远端 SVN URL，并用 `--search <username>` 搜索**远端**日志。
+6. 只使用匹配的远端 C# 提交作为来源，不要静默切换到其他用户的提交。
+7. 对每个发生变化的 `.cs` 文件同时获取 `svn diff` 和 `svn cat`。C# 源码是唯一真相源。
+8. 在 `Client/Export/LuaHotFixArchive/Automatic` 中搜索历史 Lua 热修复示例，但只用于确认写法风格和命名空间。
+9. 生成 XLua 热修复代码，保持 C# 中的方法名、签名、执行顺序和分支逻辑。
+10. 在方法入口、关键分支、nil 检查、重要循环和方法退出处添加 `CS.GameEngine.Log.PublishLog` 日志。
+11. 最终文件只能写入 `Client/Export/LuaHotFixArchive/Automatic/<latest-version>/#<id>/TestHotFix.lua`。
+12. 回读写入的文件，并报告修订号、变更文件、转换方法、输出路径和待审查风险。
 
-## Hard rules
+## 硬性规则
 
-- Treat C# source as the **only** truth source.
-- Never invent methods, namespaces, or missing logic.
-- Never use another user's commit unless the current user has no matching C# commit and explicitly asks to broaden the search.
-- Never place the final output outside the latest `Automatic/<version>/#<id>/TestHotFix.lua` path.
-- Prefer the workspace-parent embedded Python runtime `../Python/python.exe` when running project Python scripts.
-- Treat bundled scripts as helper utilities only; manually verify every critical result.
+- C# 源码是**唯一**真相源。
+- 绝不虚构方法、命名空间或缺失逻辑。
+- 当前用户没有匹配的 C# 提交时，绝不使用其他用户的提交；除非用户明确要求扩大搜索范围。
+- 最终产物不得写到最新的 `Automatic/<version>/#<id>/TestHotFix.lua` 路径之外。
+- 运行项目 Python 脚本时，优先使用工作区父目录中的嵌入式运行时 `../Python/python.exe`。
+- 随附脚本只作为辅助工具，每个关键结果都要人工核实。
 
-## Bundled resources
+## 随附资源
 
-- `references/hotfix_workflow.md`: end-to-end operating workflow and path/output rules.
-- `references/csharp_to_lua_rules.md`: detailed C# → Lua conversion rules and pitfall checklist.
-- `scripts/svn_diff_parser.py`: helper script for parsing SVN diffs and locating changed methods.
-- `scripts/lua_generator.py`: helper script for generating starter XLua hotfix code.
+- `references/hotfix_workflow.md`：端到端操作流程和路径、输出规则。
+- `references/csharp_to_lua_rules.md`：详细的 C# 到 Lua 转换规则和踩坑清单。
+- `scripts/svn_diff_parser.py`：解析 SVN diff 并定位变更方法的辅助脚本。
+- `scripts/lua_generator.py`：生成 XLua 热修复初稿的辅助脚本。
 
-## Expected final response
+## 最终回复要求
 
-Return a short execution summary containing:
+返回简短执行摘要，包含：
 
-- SVN revision and author
-- Count of changed C# files
-- Count of converted methods
-- Final `TestHotFix.lua` output location
-- Any parts that still need human review
+- SVN 修订号和作者
+- 变更的 C# 文件数量
+- 转换的方法数量
+- `TestHotFix.lua` 最终输出位置
+- 仍需人工审查的部分
 
 # 外链资源更新
 

@@ -1,9 +1,9 @@
 ---
 name: leap-rdc-debug-diff
-description: Compare constant buffers (cbuffers) between two RenderDoc .rdc captures at matching draw events (e.g. one "good" reference frame vs one "problematic" frame), and separate draw-specific differences from frame-global ones. Drives the renderdoc-mcp stdio server (bin/renderdoc-mcp.exe) via pure-stdlib Python. Use when the user wants to know what changed in a shader's VS/PS cbuffers between two captures at a given EID, or which cbuffer values are per-draw vs per-frame.
+description: "用于对比两份 RenderDoc .rdc 抓帧中同一 draw 的 VS/PS 常量缓冲区，区分 draw 专属差异与帧全局差异，并定位可能影响画面的变量。不替代完整抓帧分析、shader 调试或普通离线 .rdc 浏览。"
 ---
 
-# RenderDoc CBuffer Diff
+# RenderDoc 常量缓冲区差异对比
 
 对比两个 `.rdc` 抓帧在同一 draw 上的 cbuffer（常量缓冲）数值差异，并区分「该 draw 专属差异」与「帧全局差异」。驱动 `renderdoc-mcp`（stdio MCP server），全部脚本只用 Python 标准库。
 
@@ -32,7 +32,7 @@ description: Compare constant buffers (cbuffers) between two RenderDoc .rdc capt
 | `rdc_find_shader_draws.py` | 在两张 capture 里找出用某 shader 的所有 draw |
 | `rdc_export_rt.py` | 导出某 EID 的 render target（需先 goto_event）|
 
-## Workflow
+## 工作流
 
 1. **确认两个 EID 是同一个 draw**：
    - 用 `rdc_shader2.py` 分别取两个 EID 的 VS disasm，比对 shader hash（如 `d787b666-...`）与 `ResourceId`。

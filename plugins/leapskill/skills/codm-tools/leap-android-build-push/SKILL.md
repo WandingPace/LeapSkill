@@ -1,6 +1,6 @@
 ---
 name: leap-android-build-push
-description: CODM Android 引擎 so 的编译-推送-验证一条龙：分支/工作区/包版本门禁 → [Leap] 时间戳自动注入（PCHD 模板）→ Bee 编译 AndroidPlayer（增量）→ il2cpp 链接 libunity.so → adb push + run-as 推送到手机 → 启动游戏抓取 [Leap] 构建时间戳日志验证 so 已更新 → 还原 Player.cpp。触发：编译推送、推so、换so到手机、leap-android-build-push、验证手机so是否更新。用户未指定国服/西方包时必须先询问选择哪个包。
+description: "用于 CODM Android 引擎 libunity.so 的编译、设备推送与更新验证，涵盖分支/工作区/包版本门禁、[Leap] 构建时间戳注入、Bee/il2cpp 构建、adb 推送和真机日志确认。用户未指定国服包或西方包时必须先询问；不用于 iOS、仅构建不推送或普通 APK 安装。"
 ---
 
 # Android Build & Push
