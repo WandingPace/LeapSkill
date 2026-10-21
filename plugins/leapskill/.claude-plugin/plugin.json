@@ -1,0 +1,29 @@
+{
+  "name": "leapskill",
+  "displayName": "LeapSkill",
+  "version": "0.1.0",
+  "description": "Personal engineering workflow skills covering discovery, specification, architecture, implementation, testing, debugging, learning, handoff, and CODM tools.",
+  "author": {
+    "name": "WandingPace"
+  },
+  "homepage": "https://github.com/WandingPace/LeapSkill",
+  "repository": "https://github.com/WandingPace/LeapSkill",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "skills",
+    "workflow",
+    "engineering",
+    "codm"
+  ],
+  "skills": [
+    "./skills/architecture/",
+    "./skills/codm-tools/",
+    "./skills/implementation/",
+    "./skills/learning/",
+    "./skills/requirements/",
+    "./skills/specification/",
+    "./skills/support/",
+    "./skills/verification/"
+  ]
+}

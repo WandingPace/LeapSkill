@@ -3,6 +3,8 @@ name: show-me
 description: "Help the user understand the current topic visually with concise diagrams, code-shape sketches, diffs, and focused HTML artifacts. Use only when the user explicitly invokes show-me; 中文用户说“show-me”“画出来”或“可视化解释”时也应使用。 Do NOT use for ordinary prose-only explanations or automatic routing."
 ---
 
+# Show Me
+
 Help the user understand the current topic of conversation visually. Skip the preamble and keep prose brief. Pick the smallest view that makes the key point clear.
 
 - Show logic or an algorithm as pseudocode:

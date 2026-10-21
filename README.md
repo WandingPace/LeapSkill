@@ -6,7 +6,7 @@ LeapSkill 是我的个人 Codex 技能库：一套从想法、规格、实现、
 
 ## 当前内容
 
-- 1 个插件：`leapskill`（同时提供 Codex 与 Cursor marketplace 清单）
+- 1 个插件：`leapskill`（同时提供 Codex、Cursor、CodeBuddy 与 Claude Code 的 marketplace 清单）
 - 55 个技能目录，按流程分组位于 `plugins/leapskill/skills/{requirements,specification,architecture,implementation,verification,support,learning,codm-tools}/`
 - 覆盖需求澄清、规格拆解、架构设计、实现测试、调试评审、教学交接、长文写作和 CODM 工具流（含 Shader 关键字审计与 SVN diff 复核）
 - 正文与界面文案已中文化
@@ -53,6 +53,22 @@ codex plugin add leapskill@leapskill
 ```
 
 安装后开启新对话即可使用。可以显式调用，例如 `$show-me`、`$skill-conductor`、`$tdd`、`$research`；也可能根据任务描述被 Codex 自动选中。`show-me` 仅支持显式调用，用于把当前主题解释为紧凑图表、代码形态草图、diff 或聚焦的 HTML 产物。
+
+## 安装到 Claude Code
+
+仓库已包含 Claude Code marketplace 清单，可作为插件市场添加：
+
+- Marketplace：`.claude-plugin/marketplace.json`
+- 插件清单：`plugins/leapskill/.claude-plugin/plugin.json`
+
+技能按分类嵌套在 `skills/{category}/{skill}/` 下。Claude Code 插件默认只扫描 `skills/` 的第一层子目录，因此 `plugin.json` 用 `skills` 字段把 8 个分类目录都纳入扫描范围，加载效果与其他平台一致。
+
+```bash
+claude plugin marketplace add /path/to/LeapSkill
+claude plugin install leapskill@leapskill
+```
+
+安装后技能即可被自动匹配，也可以显式调用，例如 `/show-me`、`/skill-conductor`、`/tdd`、`/research`。改动清单后可用 `claude plugin validate ./plugins/leapskill` 校验。
 
 ## 翻译与改造约定
 
