@@ -1,0 +1,4 @@
+interface:
+  display_name: "leap:unity-shader-compile"
+  short_description: "用 UnityShaderCompiler.exe 编 vulkan/gles3/d3d11 变体并打指标"
+  default_prompt: "用当前 Unity 编译器编这个 shader 变体，输出 vulkan/gles3/d3d11 反汇编和采样/寄存器指标。"

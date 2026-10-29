@@ -1,4 +1,4 @@
 interface:
-  display_name: "leap:leap-drawio-clean-diagrams"
+  display_name: "leap:drawio-clean-diagrams"
   short_description: "生成清晰易读的 draw.io 图表"
   default_prompt: "根据该系统创建清晰易读的 draw.io 类图、流程图和时序图。"

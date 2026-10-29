@@ -7,8 +7,8 @@ LeapSkill 是我的个人 Codex 技能库：一套从想法、规格、实现、
 ## 当前内容
 
 - 1 个插件：`leapskill`（同时提供 Codex、Cursor、CodeBuddy 与 Claude Code 的 marketplace 清单）
-- 55 个技能目录，按流程分组位于 `plugins/leapskill/skills/{requirements,specification,architecture,implementation,verification,support,learning,codm-tools}/`
-- 覆盖需求澄清、规格拆解、架构设计、实现测试、调试评审、教学交接、长文写作和 CODM 工具流（含 Shader 关键字审计与 SVN diff 复核）
+- 61 个技能目录，按流程分组位于 `plugins/leapskill/skills/{requirements,specification,architecture,implementation,verification,support,learning,codm-tools}/`
+- 覆盖需求澄清、规格拆解、架构设计、实现测试、调试评审、教学交接、长文写作和 CODM 工具流（含 Shader 关键字审计、UnityShaderCompiler 离线编译与 SVN diff 复核）
 - 正文与界面文案已中文化
 - 保留技能的 kebab-case 名称、脚本和配置结构
 

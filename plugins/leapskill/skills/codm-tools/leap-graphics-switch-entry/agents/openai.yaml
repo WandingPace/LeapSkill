@@ -1,4 +1,4 @@
 interface:
-  display_name: "leap:leap-graphics-switch-entry"
+  display_name: "leap:graphics-switch-entry"
   short_description: "为 CODM Graphics.* 开关补挂 Editor 菜单、GM 命令、FeatureSwitchWindow 三入口"
   default_prompt: "给 CODM 的引擎 Graphics 开关补全三个控制入口：Editor 右键菜单、GM Terminal 命令、FeatureSwitchWindow。"

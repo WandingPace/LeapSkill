@@ -1,5 +1,5 @@
 interface:
-  display_name: "leap:leap-renderdoc-mcp"
+  display_name: "leap:renderdoc-mcp"
   short_description: "分析 RenderDoc 抓帧并诊断 GPU 渲染问题"
   default_prompt: "使用 $renderdoc-mcp 检查这份 RenderDoc 抓帧并解释渲染问题。"
 

@@ -1,5 +1,5 @@
 interface:
-  display_name: "leap:leap-workflow"
+  display_name: "leap:workflow"
   short_description: "调研、规划、审查并分阶段实施非平凡任务"
   default_prompt: "使用 $leap-workflow（Leap WorkFlow）调研该需求、澄清未知项、产出可审批的分阶段计划，并且只实施已批准的阶段。"
 

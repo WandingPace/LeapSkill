@@ -77,6 +77,7 @@
     "./skills/verification/code-review",
     "./skills/verification/diagnosing-bugs",
     "./skills/verification/resolving-merge-conflicts",
-    "./skills/codm-tools/leap-shader-keyword-audit"
+    "./skills/codm-tools/leap-shader-keyword-audit",
+    "./skills/codm-tools/leap-unity-shader-compile"
   ]
 }
